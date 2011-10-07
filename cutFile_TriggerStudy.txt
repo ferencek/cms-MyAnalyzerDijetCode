@@ -1,0 +1,63 @@
+#
+#############################     Example of file with list of cuts
+#
+#
+#------------------------ Preliminary cut variables and values (cut level -1) here -----------------------------
+# This first list of variable names and values are used to pass configurable values to the user code.
+# The user can retrieve the values associated to a variable name via a provided function call
+# [e.g. getPreCutValue1("eleFidRegion") and similarly for value2, value3 and value4]
+# The idea is that the user can use these values to define the list of objects (electrons, jets, etc.) used in
+# analysis. No cut is automatically evaluated on these variables and the cut level must be equal to -1.
+# Variable names must be unique.
+#
+#VariableName                   value1          value2          value3          value4          level
+#------------                   ------------    -------------   ------------    -------------   -----
+jetFidRegion                    2.7             -               -               -               -1
+jetTriggerPtThresh              80              -               -               -               -1
+jetTriggerDeltaEtaCut           1.7             -               -               -               -1
+#
+#
+#--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
+# The cut variable names, cut boundaries and histogram binnings are provided here by the user.
+# Inside the event loop, the user has to fill each variable with its value using
+# a provided function call [e.g. fillVariableWithValue("nEleFinal", number_of_electrons)]
+# The variable names in the user code has to match the names provided here.
+# Variable names must be unique.
+# The cut will be declared "passed" if
+#    ( minValue1 < VariableValue <= maxValue1 )
+# in case only the first range (minValue1, maxValue1) is provided.
+# Otherwise, the cut will be declared "passed" if
+#    ( minValue1 < VariableValue <= maxValue1 )  OR  ( minValue2 < VariableValue <= maxValue2 )
+# in case even the second range (minValue2, maxValue2) is provided.
+# The level of the cut (0,1,2 ... n) is provided by the user and can be used in the code to easily determine if
+# groups of same-level cuts have passed or failed.
+#
+#VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
+#------------         ------------  -------------        ------------  -------------   -----   ----------------
+HLT_Jet370_v6         0             1                    -             -               0       2   -0.5 1.5
+TriggerDeltaEtaCut    -inf          +inf                 -             -               0       2   -0.5 1.5
+nJet_all              -inf          +inf                 -             -               1       16  -0.5 15.5
+nJet_looseID          1             +inf                 -             -               1       16  -0.5 15.5
+absEtaJet1            -inf          2.5                  -             -               1       50   0   5
+absEtaJet2            -inf          2.5                  -             -               1       50   0   5
+absDeltaEtaJ1J2       -inf          1.3                  -             -               2       50   0   5
+J1J2Mass              -inf          +inf                 -             -               3       500  0   5000
+J1J2Mass500           500           +inf                 -             -               3       500  0   5000
+J1J2Mass600           600           +inf                 -             -               3       500  0   5000
+J1J2Mass700           700           +inf                 -             -               3       500  0   5000
+J1J2Mass800           800           +inf                 -             -               3       500  0   5000
+J1J2Mass900           900           +inf                 -             -               3       500  0   5000
+J1J2Mass1000          1000          +inf                 -             -               3       500  0   5000
+J1J2Mass1100          1100          +inf                 -             -               3       500  0   5000
+J1J2Mass1200          1200          +inf                 -             -               3       500  0   5000
+J1J2Mass1300          1300          +inf                 -             -               3       500  0   5000
+J1J2Mass1400          1400          +inf                 -             -               3       500  0   5000
+J1J2Mass1500          1500          +inf                 -             -               3       500  0   5000
+#
+#
+#
+#---------------------------------------- Cut Optimizer --------------------------------------------------
+#VariableName                   must be OPT   > or <    RangeMin        RangeMax        unused
+#------------                   -----------   ------    ------------    -------------   ------
+#pTMu1                             OPT           >         20              65             1
+#pTJet1                            OPT           >         20              65             1
