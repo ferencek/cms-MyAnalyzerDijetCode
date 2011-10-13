@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_TriggerStudy.cc,v 1.2 2011/10/12 19:24:42 ferencek Exp $
+// $Id: MyAnalyzer_TriggerStudy.cc,v 1.3 2011/10/13 02:01:13 ferencek Exp $
 //
 //
 
@@ -198,7 +198,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int jet370_fired = 0;
    string jet370_name = "HLT_Jet370_v1";
    if( iEvent.id().run() >= 163269 ) jet370_name = "HLT_Jet370_v2";
-   if( iEvent.id().run() >= 170249 ) jet370_name = "HLT_Jet370_v6";;
+   if( iEvent.id().run() >= 165088 ) jet370_name = "HLT_Jet370_v3";
+   if( iEvent.id().run() >= 165970 ) jet370_name = "HLT_Jet370_v4";
+   if( iEvent.id().run() == 166346 ) jet370_name = "HLT_Jet370_v5";
+   if( iEvent.id().run() >= 167078 ) jet370_name = "HLT_Jet370_v6";
+   
    unsigned int index = hltConfig.triggerIndex(jet370_name);
    if( index < triggerResults->size() )
    {
