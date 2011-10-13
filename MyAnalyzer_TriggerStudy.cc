@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer.cc,v 1.1 2011/09/16 06:45:01 ferencek Exp $
+// $Id: MyAnalyzer_TriggerStudy.cc,v 1.2 2011/10/12 19:24:42 ferencek Exp $
 //
 //
 
@@ -246,7 +246,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      for(unsigned int i=1; i<v_idx_jet_uncorr.size(); i++)
      {
-       if( CaloJetPt->at(v_idx_jet_uncorr[i]) < getPreCutValue1("jetTriggerPtThresh") ) continue;
+       if( CaloJetPtRaw->at(v_idx_jet_uncorr[i]) < getPreCutValue1("jetTriggerPtThresh") ) continue;
        if( fabs(CaloJetEta->at(v_idx_jet_uncorr[0]) - CaloJetEta->at(v_idx_jet_uncorr[i])) < getPreCutValue1("jetTriggerDeltaEtaCut"))
        {
          deltaEtaJetFound = 1;
