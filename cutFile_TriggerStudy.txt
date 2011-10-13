@@ -12,9 +12,9 @@
 #
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
-jetFidRegion                    2.7             -               -               -               -1
-jetTriggerPtThresh              100             -               -               -               -1
-jetTriggerDeltaEtaCut           1.7             -               -               -               -1
+jetFidRegion                    2.6             -               -               -               -1
+jetTriggerPtThresh              150             -               -               -               -1
+jetTriggerDeltaEtaCut           1.5             -               -               -               -1
 #
 #
 #--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
