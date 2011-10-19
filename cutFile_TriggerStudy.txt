@@ -12,9 +12,11 @@
 #
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
-jetFidRegion                    2.6             -               -               -               -1
-jetTriggerPtThresh              150             -               -               -               -1
-jetTriggerDeltaEtaCut           1.5             -               -               -               -1
+# use HLT_Jet370 (default is HLT_Jet300)
+useHLTJet370                    1               -               -               -               -1
+jetFidRegion                    2.7             -               -               -               -1
+jetTriggerDeltaEtaCut           1.7             -               -               -               -1
+dijetMassCut                    600             -               -               -               -1
 #
 #
 #--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
@@ -34,9 +36,9 @@ jetTriggerDeltaEtaCut           1.5             -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
-HLT_Jet370            0             1                    -             -               0       2   -0.5 1.5
-PassEEJetFilter       0             1                    -             -               0       2   -0.5 1.5
-TriggerDeltaEtaCut    0             1                    -             -               0       2   -0.5 1.5
+HLT_Jet               0             1                    -             -               0       2   -0.5 1.5
+PassEEAnomJetFilter   0             1                    -             -               0       2   -0.5 1.5
+TriggerCuts           0             1                    -             -               0       2   -0.5 1.5
 nJet_all              -inf          +inf                 -             -               1       16  -0.5 15.5
 nJet_looseID          1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJet1            -inf          2.5                  -             -               1       50   0   5
