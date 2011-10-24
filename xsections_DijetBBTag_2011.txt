@@ -1,0 +1,18 @@
+# Dataset_name                                                                                                                           xsection_in_pb (set it to -1 for data)
+/Jet/ferencek-Run2011A-May10ReReco-v1_EDMTuple_V00-00-01-6d363a44e73023f68a8f3b11d67becad/USER                                                       -1
+/Jet/ferencek-Run2011A-PromptReco-v4_EDMTuple_V00-00-01-6d363a44e73023f68a8f3b11d67becad/USER                                                        -1
+/Jet/ferencek-Run2011A-05Aug2011-v1_EDMTuple_V00-00-01-6d363a44e73023f68a8f3b11d67becad/USER                                                         -1
+/Jet/ferencek-Run2011A-PromptReco-v6_EDMTuple_V00-00-01-6d363a44e73023f68a8f3b11d67becad/USER                                                        -1
+/QCD_Pt-15to30_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER            816000000
+/QCD_Pt-30to50_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER             53100000
+/QCD_Pt-50to80_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER              6360000
+/QCD_Pt-80to120_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER              784000
+/QCD_Pt-120to170_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER             115000
+/QCD_Pt-170to300_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER              24300
+/QCD_Pt-300to470_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               1170
+/QCD_Pt-470to600_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               70.2
+/QCD_Pt-600to800_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               15.6
+/QCD_Pt-800to1000_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER              1.84
+/QCD_Pt-1000to1400_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER            0.332
+/QCD_Pt-1400to1800_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER           0.0109
+/QCD_Pt-1800_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               0.000358
