@@ -12,8 +12,6 @@
 #
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
-# use HLT_Jet370 (default is HLT_Jet300)
-useHLTJet370                    1               -               -               -               -1
 # use SSVHE b-tagger (default is TCHE)
 useSSVHE                        0               -               -               -               -1
 # b-tag working points
@@ -47,25 +45,18 @@ PassTrackingFailure   0             1                    -             -        
 PassEcalMskCellDRFlt  -inf          +inf                 -             -               0       2   -0.5 1.5
 PassCaloBndDRFlt      -inf          +inf                 -             -               0       2   -0.5 1.5
 PassEEAnomJetFilter   0             1                    -             -               0       2   -0.5 1.5
-nJet_all              -inf          +inf                 -             -               0       16  -0.5 15.5
-nJet_looseID          1             +inf                 -             -               1       16  -0.5 15.5
-DijetMass_HLTID       -inf          +inf                 -             -               1       600  0   6000
+nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
+nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               1       50   0   5
 absEtaJ2              -inf          2.5                  -             -               1       50   0   5
 absDeltaEtaJ1J2       -inf          1.3                  -             -               2       50   0   5
 absDeltaPhiJ1J2       -inf          +inf                 -             -               2       100  0   3.15
-DijetMass_pretag      -inf          +inf                 -             -               2       600  0   6000
-nJet_btag             1             +inf                 -             -               3       16  -0.5 15.5
-DijetMass             -inf          +inf                 -             -               3       600  0   6000
-DijetMass500          500           +inf                 -             -               4       600  0   6000
-DijetMass750          750           +inf                 -             -               4       600  0   6000
-DijetMass1000         1000          +inf                 -             -               4       600  0   6000
-DijetMass1250         1250          +inf                 -             -               4       600  0   6000
-DijetMass1500         1500          +inf                 -             -               4       600  0   6000
-DijetMass1750         1750          +inf                 -             -               4       600  0   6000
-DijetMass2000         2000          +inf                 -             -               4       600  0   6000
-DijetMass2250         2250          +inf                 -             -               4       600  0   6000
-DijetMass2500         2500          +inf                 -             -               4       600  0   6000
+DijetMass_pretag      -inf          +inf                 -             -               2       6000 0   6000
+nMuons_pretag         -inf          +inf                 -             -               2       16  -0.5 15.5
+nJets_btag            -inf          +inf                 -             -               3       16  -0.5 15.5
+DijetMass             0             1                    -             -               3       6000 0   6000
+nMuons                -inf          +inf                 -             -               3       16  -0.5 15.5
+DijetMass1050         1050          +inf                 -             -               4       6000 0   6000
 #
 #
 #
