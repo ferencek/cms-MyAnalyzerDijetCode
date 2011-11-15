@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.2 2011/11/10 02:22:32 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.3 2011/11/14 02:35:11 ferencek Exp $
 //
 //
 
@@ -294,8 +294,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    double pretagWeight = eventWeight;
-   // in MC, there are 3 iterations so each iteration gets an equal weight
-   if( !iEvent.isRealData() ) pretagWeight = eventWeight/3.;
    double tagWeight = pretagWeight;
    
    string jetTrigger_name = "HLT_Jet370_v1";
@@ -360,29 +358,56 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( PFJetPt->at(v_idx_pfjet_JetID[0]) > 15000 ) passEEAnomJetFilter = 0;
    }
 
-   // variables to be filled
-   double absDeltaEtaJ1J2 = -99.;
-   double absDeltaPhiJ1J2 = -99.;
-   double DijetMass = -99.;
-   int nBTaggedJets = 0;
-   vector<double> scaleFactors; 
-   int nMuons = 0;
+   // cuts to be reset in MC when b-tag event reweighting is enabled
+   vector<string> cutNames; cutNames.push_back("nJets_btag"); cutNames.push_back("DijetMass"); cutNames.push_back("nMuons");
 
+   int nBTaggedJets = 0;
+   vector<double> scaleFactors;
+   int nMuons = 0;
+   
+   // Set the evaluation of the cuts to false and clear the variable values and filled status
+   resetCuts();
+   
+   fillVariableWithValue("PassHLT", jetTrigger_fired, pretagWeight );
+   fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), pretagWeight );
+   fillVariableWithValue("PassBeamHaloFltTight", ( !(*passBeamHaloFilterTight) ? 1 : 0 ), pretagWeight ); // there is a bug in the ntuple maker (V00-00-01 and V00-00-02) so have to take the negative of the stored flag
+   fillVariableWithValue("PassTrackingFailure", ( *passTrackingFailure ? 1 : 0 ), pretagWeight );
+   fillVariableWithValue("PassEcalMskCellDRFlt", ( *passEcalMaskedCellDRFilter ? 1 : 0 ), pretagWeight );
+   fillVariableWithValue("PassCaloBndDRFlt", ( *passCaloBoundaryDRFilter ? 1 : 0 ), pretagWeight );
+   fillVariableWithValue("PassEEAnomJetFilter", passEEAnomJetFilter, pretagWeight );
+
+   fillVariableWithValue("nJets_all", PFJetPt->size(), pretagWeight);
+   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), pretagWeight);
+
+   fillVariableWithValue("nGoodVertices", PVZ->size(), pretagWeight );
+
+   if( v_idx_pfjet_JetID.size() >= 1 )
+   {
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
+     fillVariableWithValue( "PtJ1", PFJetPt->at(v_idx_pfjet_JetID[0]), pretagWeight );
+   }
    if( v_idx_pfjet_JetID.size() >= 2 )
    {
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+     fillVariableWithValue( "PtJ2", PFJetPt->at(v_idx_pfjet_JetID[1]), pretagWeight );
+     // calculate |DeltaEta(j1,j2)|
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+
      TLorentzVector v_j1j2, v_j1, v_j2;
      v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
      v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
-     // calculate |DeltaEta(j1,j2)|
-     absDeltaEtaJ1J2 = fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) );
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
-     DijetMass = v_j1j2.M();
+     
+     fillVariableWithValue( "DijetMass1050", v_j1j2.M(), pretagWeight );
 
      TVector2 v2_j1, v2_j2;
      v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
      v2_j2.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[1]) );
-     absDeltaPhiJ1J2 = fabs( v2_j1.DeltaPhi(v2_j2) );
+     
+     fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ), pretagWeight );
+     
+     fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMass1050"), pretagWeight );
 
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
@@ -426,72 +451,64 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if( v_j.DeltaR(v_m) < 0.4 ) ++nMuons;
        }
      }
+     
+     fillVariableWithValue( "nMuons_pretag", nMuons, pretagWeight );
+
+     // in MC, if the b-tag scale factor reweighting is enabled, apply the b-tag event weight
+     if( !iEvent.isRealData() && doSFReweighting )
+     {
+       tagWeight = eventWeight*bTagEventWeight(scaleFactors,0);
+       fillVariableWithValue( "nJets_btag", 0, tagWeight );
+     }
+     else
+     {
+       fillVariableWithValue( "nJets_btag", nBTaggedJets, tagWeight );
+     }
+     fillVariableWithValue( "DijetMass", getVariableValue("DijetMass1050"), tagWeight );
+     fillVariableWithValue( "nMuons", nMuons, tagWeight );
    }
-
-   // Set the evaluation of the cuts to false and clear the variable values and filled status
-   resetCuts();
    
-   for( int nbtags=0; nbtags<=2; ++nbtags )
+   // Evaluate cuts (but do not apply them)
+   evaluateCuts();
+
+   if(passedAllPreviousCuts("DijetMass_pretag"))
    {
-     // multiple iterations done only in MC
-     if( iEvent.isRealData() && nbtags>0 ) break;
-     
-     fillVariableWithValue("PassHLT", jetTrigger_fired, pretagWeight );
-     fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), pretagWeight );
-     fillVariableWithValue("PassBeamHaloFltTight", ( !(*passBeamHaloFilterTight) ? 1 : 0 ), pretagWeight ); // there is a bug in the ntuple maker (V00-00-01 and V00-00-02) so have to take the negative of the stored flag
-     fillVariableWithValue("PassTrackingFailure", ( *passTrackingFailure ? 1 : 0 ), pretagWeight );
-     fillVariableWithValue("PassEcalMskCellDRFlt", ( *passEcalMaskedCellDRFilter ? 1 : 0 ), pretagWeight );
-     fillVariableWithValue("PassCaloBndDRFlt", ( *passCaloBoundaryDRFilter ? 1 : 0 ), pretagWeight );
-     fillVariableWithValue("PassEEAnomJetFilter", passEEAnomJetFilter, pretagWeight );
+     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
+     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+   }
+   if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass1050"), double(nMuons)*pretagWeight );
+   if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass1050"), double(nMuons)*tagWeight );
 
-     fillVariableWithValue("nJets_all", PFJetPt->size(), pretagWeight);
-     fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), pretagWeight);
+   // select only those events that pass the full selection
+   if( passedCut("all") ) ret = true;
 
-     fillVariableWithValue("nGoodVertices", PVZ->size(), pretagWeight );
-
-     if( v_idx_pfjet_JetID.size() >= 1 )
+   if( v_idx_pfjet_JetID.size() >= 2 && !iEvent.isRealData() && doSFReweighting )
+   {
+     for( int nbtags=1; nbtags<=2; ++nbtags )
      {
-       fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
-       fillVariableWithValue( "PtJ1", PFJetPt->at(v_idx_pfjet_JetID[0]), pretagWeight );
-     }
-     if( v_idx_pfjet_JetID.size() >= 2 )
-     {
-       fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
-       fillVariableWithValue( "PtJ2", PFJetPt->at(v_idx_pfjet_JetID[1]), pretagWeight );
-       fillVariableWithValue( "absDeltaEtaJ1J2", absDeltaEtaJ1J2, pretagWeight );
-       fillVariableWithValue( "DijetMass1050", DijetMass, pretagWeight );
-       fillVariableWithValue( "absDeltaPhiJ1J2", absDeltaPhiJ1J2, pretagWeight );
-       fillVariableWithValue( "DijetMass_pretag", DijetMass, pretagWeight );
-       fillVariableWithValue( "nMuons_pretag", nMuons, pretagWeight );
-       // in MC, apply the b-tag event weight
-       if( !iEvent.isRealData() && doSFReweighting )
-       {
-         tagWeight = eventWeight*bTagEventWeight(scaleFactors,nbtags);
-         fillVariableWithValue( "nJets_btag", nbtags, tagWeight );
-       }
-       else
-       {
-         fillVariableWithValue( "nJets_btag", nBTaggedJets, tagWeight );
-       }
-       fillVariableWithValue( "DijetMass", DijetMass, tagWeight );
+       // Set the evaluation of the cuts to false and clear the variable values and filled status for a subset of cuts defined by the cutNames vector
+       resetCuts(cutNames);
+
+       tagWeight = eventWeight*bTagEventWeight(scaleFactors,nbtags);
+
+       fillVariableWithValue( "nJets_btag", nbtags, tagWeight );
+       fillVariableWithValue( "DijetMass", getVariableValue("DijetMass1050"), tagWeight );
        fillVariableWithValue( "nMuons", nMuons, tagWeight );
-     }
 
-     // Evaluate cuts (but do not apply them)
-     evaluateCuts();
+       // Evaluate cuts (but do not apply them)
+       evaluateCuts();
 
-     if(passedAllPreviousCuts("DijetMass_pretag"))
-     {
-       FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
-       FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+       if(passedAllPreviousCuts("DijetMass_pretag"))
+       {
+         FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
+         FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+       }
+       if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass1050"), double(nMuons)*pretagWeight );
+       if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass1050"), double(nMuons)*tagWeight );
+
+       // select only those events that pass the full selection
+       if( passedCut("all") ) ret = true;
      }
-     if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", DijetMass, double(nMuons)*pretagWeight );
-     if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", DijetMass, double(nMuons)*tagWeight );
-  
-     // select only those events that pass the full selection
-     if( passedCut("all") ) ret = true;
-     
-     if( nbtags<2 ) resetCuts("sameEvent");
    }
    //############################# User's code ends here #################################
    //#####################################################################################
