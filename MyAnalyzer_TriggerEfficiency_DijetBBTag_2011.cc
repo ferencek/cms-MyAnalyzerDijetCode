@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_TriggerStudy.cc,v 1.5 2011/10/19 18:31:18 ferencek Exp $
+// $Id: MyAnalyzer_TriggerEfficiency_DijetBBTag_2011.cc,v 1.1 2011/11/10 02:23:19 ferencek Exp $
 //
 //
 
@@ -45,8 +45,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // ROOT
-#include <TH1D.h>
-#include <TH2D.h>
 #include <TLorentzVector.h>
 
 using namespace std;
@@ -114,18 +112,14 @@ MyAnalyzer::beginJob()
    //########################### User's code starts here #################################/
    
    // book your histograms here
-   CreateUserTH1D("h1_DijetMass_denom_SingleTag", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_SingleTag", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_denom_DoubleTag", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_DoubleTag", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_denom_HT600", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_HT600", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_denom_HT650", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_HT650", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_denom_HT750", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_HT750", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_denom_FatJet850", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
-   CreateUserTH1D("h1_DijetMass_num_FatJet850", getHistoNBins("DijetMass_denom"), getHistoMin("DijetMass_denom"), getHistoMax("DijetMass_denom"));
+   CreateUserTH1D("h1_DijetMass_denom_HT600", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_num_HT600", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_denom_HT650", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_num_HT650", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_denom_HT750", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_num_HT750", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_denom_FatJet850", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_num_FatJet850", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    
    // initialize your variables here
    
@@ -169,7 +163,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //#####################################################################################
    //########################### User's code starts here #################################
 
-   int useSSVHE = (int)getPreCutValue1("useSSVHE");
+   int btagger = int(getPreCutValue1("btagger"));
    
    // grab necessary objects from the event
    edm::Handle<edm::TriggerResults> triggerResults;
@@ -196,105 +190,33 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
    edm::Handle<vector<double> > PFJetE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
-   edm::Handle<vector<int> > PFJetPassLooseID;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PassLooseID"), PFJetPassLooseID);
+   edm::Handle<vector<int> > PFJetPassJetID;
+   iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
    edm::Handle<vector<double> > PFJetSSVHE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
+   edm::Handle<vector<double> > PFJetSSVHP;
+   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
    edm::Handle<vector<double> > PFJetTCHE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
 
-   string jet240_name = "HLT_Jet240_v1";
-   if( iEvent.id().run() >= 163269 ) jet240_name = "HLT_Jet240_v2";
-   if( iEvent.id().run() >= 165088 ) jet240_name = "HLT_Jet240_v3";
-   if( iEvent.id().run() >= 165970 ) jet240_name = "HLT_Jet240_v4";
-   if( iEvent.id().run() == 166346 ) jet240_name = "HLT_Jet240_v5";
-   if( iEvent.id().run() >= 167078 ) jet240_name = "HLT_Jet240_v6";
-   if( iEvent.id().run() >= 178420 ) jet240_name = "HLT_Jet240_v9";
-   
-//    string jet300_name = "HLT_Jet240_v1"; // HLT_Jet300 was not used before run 163269
-//    if( iEvent.id().run() >= 163269 ) jet300_name = "HLT_Jet300_v1";
-//    if( iEvent.id().run() >= 165088 ) jet300_name = "HLT_Jet300_v2";
-//    if( iEvent.id().run() >= 165970 ) jet300_name = "HLT_Jet300_v3";
-//    if( iEvent.id().run() == 166346 ) jet300_name = "HLT_Jet300_v4";
-//    if( iEvent.id().run() >= 167078 ) jet300_name = "HLT_Jet300_v5";
-//    if( iEvent.id().run() >= 176545 ) jet300_name = "HLT_Jet300_v6";
-//    if( iEvent.id().run() >= 178420 ) jet300_name = "HLT_Jet300_v9";
-   
-   string jet370_name = "HLT_Jet370_v1";
-   if( iEvent.id().run() >= 163269 ) jet370_name = "HLT_Jet370_v2";
-   if( iEvent.id().run() >= 165088 ) jet370_name = "HLT_Jet370_v3";
-   if( iEvent.id().run() >= 165970 ) jet370_name = "HLT_Jet370_v4";
-   if( iEvent.id().run() == 166346 ) jet370_name = "HLT_Jet370_v5";
-   if( iEvent.id().run() >= 167078 ) jet370_name = "HLT_Jet370_v6";
-   if( iEvent.id().run() >= 176545 ) jet370_name = "HLT_Jet370_v7";
-   if( iEvent.id().run() >= 178420 ) jet370_name = "HLT_Jet370_v10";
-
-   string ht600_name = "HLT_HT600_v1";
-
-   string ht650_name = "HLT_HT650_v1";
-
-   string ht750_name = "HLT_HT750_v3";
-   
-   string fatjet850_name = "HLT_FatJetMass850_DR1p1_Deta2p0_v1";
-   if( iEvent.id().run() >= 173236 ) fatjet850_name = "HLT_FatJetMass850_DR1p1_Deta2p0_v2";
-   if( iEvent.id().run() >= 178420 ) fatjet850_name = "HLT_FatJetMass850_DR1p1_Deta2p0_v5";
-   
-   // check triggers
-   int jet240_fired = 0;
-   int jet370_fired = 0;
-
-   string trigger_name = jet240_name;
-   
-   size_t index = hltConfig.triggerIndex(trigger_name);
-   if( index < triggerResults->size() )
-   {
-     if( triggerResults->accept( index ) ) jet240_fired = 1;
-   }
-   else
-   {
-     edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
-   }
-
-//    int prescale = -1;
-//    if(hltConfig.prescaleSet(iEvent, iSetup)<0) {
-//      edm::LogError("RootTupleMakerV2_TriggerError") << "Error! The prescale set index number could not be obtained";
-//    } else {
-//      prescale = hltConfig.prescaleValue(iEvent, iSetup, trigger_name);
-// //      cout<<"prescale: "<<prescale<<endl;
-//    }
-
-   trigger_name = jet370_name;
-
-   index = hltConfig.triggerIndex(trigger_name);
-   if( index < triggerResults->size() )
-   {
-     if( triggerResults->accept( index ) ) jet370_fired = 1;
-   }
-   else
-   {
-     edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
-   }
-
    // loop over PFJets
-   vector<int> v_idx_pfjet_looseID;
+   vector<int> v_idx_pfjet_JetID;
    for(size_t i=0; i<PFJetPt->size(); i++)
    {
-       // select PFJets that pass loose JetID
-       if( !PFJetPassLooseID->at(i) ) continue;
-       v_idx_pfjet_looseID.push_back(i);
+       // select PFJets that pass tight JetID
+       if( !PFJetPassJetID->at(i) ) continue;
+       v_idx_pfjet_JetID.push_back(i);
    }
 
    int passEEAnomJetFilter = 1;
-   if( v_idx_pfjet_looseID.size() > 0 )
+   if( v_idx_pfjet_JetID.size() > 0 )
    {
-     if( PFJetPt->at(v_idx_pfjet_looseID[0]) > 15000 ) passEEAnomJetFilter = 0;
+     if( PFJetPt->at(v_idx_pfjet_JetID[0]) > 15000 ) passEEAnomJetFilter = 0;
    }
 
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
-   fillVariableWithValue("PassHLTJet240", jet240_fired );
-   fillVariableWithValue("PassHLTJet370", jet370_fired );
    fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ) );
    fillVariableWithValue("PassBeamHaloFltTight", ( !(*passBeamHaloFilterTight) ? 1 : 0 ) ); // there is a bug in the ntuple maker so have to take the negative of the stored flag
    fillVariableWithValue("PassTrackingFailure", ( *passTrackingFailure ? 1 : 0 ) );
@@ -302,136 +224,199 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue("PassCaloBndDRFlt", ( *passCaloBoundaryDRFilter ? 1 : 0 ) );
    fillVariableWithValue("PassEEAnomJetFilter", passEEAnomJetFilter );
 
-   fillVariableWithValue("nJet_all", PFJetPt->size());
-   fillVariableWithValue("nJet_looseID", v_idx_pfjet_looseID.size());
+   fillVariableWithValue("nJets_all", PFJetPt->size());
+   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
    
-   if( v_idx_pfjet_looseID.size() >= 1 )
+   if( v_idx_pfjet_JetID.size() >= 1 )
    {
-       fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_looseID[0]) ) );
+       fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ) );
    }
-   if( v_idx_pfjet_looseID.size() >= 2 )
+   if( v_idx_pfjet_JetID.size() >= 2 )
    {
-       fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_looseID[1]) ) );
+       fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
        
        TLorentzVector v_j1j2, v_j1, v_j2;
-       v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_looseID[0]),PFJetEta->at(v_idx_pfjet_looseID[0]),PFJetPhi->at(v_idx_pfjet_looseID[0]),PFJetE->at(v_idx_pfjet_looseID[0]));
-       v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_looseID[1]),PFJetEta->at(v_idx_pfjet_looseID[1]),PFJetPhi->at(v_idx_pfjet_looseID[1]),PFJetE->at(v_idx_pfjet_looseID[1]));
+       v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
+       v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
        // calculate |DeltaEta(j1,j2)|
-       fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_looseID[0]) - PFJetEta->at(v_idx_pfjet_looseID[1]) ) );
+       fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
        // calculate M_j1j2
        v_j1j2 = v_j1 + v_j2;
 
        TVector2 v2_j1;
        TVector2 v2_j2;
-       v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_looseID[0]) );
-       v2_j2.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_looseID[1]) );
+       v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
+       v2_j2.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[1]) );
        fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ) );
 
-       fillVariableWithValue( "DijetMass_denom", v_j1j2.M() );
-       fillVariableWithValue( "DijetMass_num", getVariableValue("DijetMass_denom") );
+       fillVariableWithValue( "DijetMass", v_j1j2.M() );
 
-       int nBtags = 0;
+       int nBTaggedJets = 0;
        for(int i=0; i<2; ++i)
        {
-         if(useSSVHE)
+         if(btagger==1)
          {
-           if( PFJetSSVHE->at(v_idx_pfjet_looseID[i]) > getPreCutValue1("SSVHE_WP") ) ++nBtags;
+           if( PFJetSSVHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHEM_WP") ) ++nBTaggedJets;
+         }
+         else if(btagger==2)
+         {
+           if( PFJetSSVHP->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHPT_WP") ) ++nBTaggedJets;
          }
          else
          {
-           if( PFJetTCHE->at(v_idx_pfjet_looseID[i]) > getPreCutValue1("TCHE_WP") ) ++nBtags;
+           if( PFJetTCHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("TCHEM_WP") ) ++nBTaggedJets;
          }
        }
 
-       fillVariableWithValue("nJet_btag", nBtags);
+       fillVariableWithValue("nJets_btag", nBTaggedJets);
    }
 
    // Evaluate cuts (but do not apply them)
    evaluateCuts();
 
-   // fill dijet mass plots with b-tagging applied
-   if(passedAllPreviousCuts("DijetMass_denom"))
-   {
-     if(int(getVariableValue("nJet_btag")) == 1) FillUserTH1D("h1_DijetMass_denom_SingleTag", getVariableValue("DijetMass_denom") );
-     if(int(getVariableValue("nJet_btag")) == 2) FillUserTH1D("h1_DijetMass_denom_DoubleTag", getVariableValue("DijetMass_denom") );
-   }
+   
+   // HLT_HT600 (wrt HLT_HT400)
+   string trigger_pattern_num = "HLT_HT600_v*";
+   string trigger_pattern_denom = "HLT_HT400_v*";
+   
+   vector<string> matched_num = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_num);
+   vector<string> matched_denom = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_denom);
 
-   if(passedAllPreviousCuts("DijetMass_num"))
+   if( matched_num.size()==1 && matched_denom.size()==1 )
    {
-     if(int(getVariableValue("nJet_btag")) == 1) FillUserTH1D("h1_DijetMass_num_SingleTag", getVariableValue("DijetMass_denom") );
-     if(int(getVariableValue("nJet_btag")) == 2) FillUserTH1D("h1_DijetMass_num_DoubleTag", getVariableValue("DijetMass_denom") );
-   }
-
-   // HLT_HT600
-   trigger_name = ht600_name;
-   if( iEvent.id().run() >= 170249 && iEvent.id().run() <= 175837 )
-   {
-     index = hltConfig.triggerIndex(trigger_name);
-     if( index < triggerResults->size() )
+     int prescale = -1;
+     if(hltConfig.prescaleSet(iEvent, iSetup)<0) edm::LogError("RootTupleMakerV2_TriggerError") << "Error! The prescale set index number could not be obtained";
+     else prescale = hltConfig.prescaleValue(iEvent, iSetup, matched_num.front());
+     
+     if( prescale == 1 )
      {
-       if( passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_denom_HT600", getVariableValue("DijetMass_denom") );
+//        cout<<matched_num.front()<<endl;
+//        cout<<matched_denom.front()<<endl;
+       int idx_num = hltConfig.triggerIndex(matched_num.front());
+       int idx_denom = hltConfig.triggerIndex(matched_denom.front());
 
-       if( triggerResults->accept( index ) && passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_num_HT600", getVariableValue("DijetMass_denom") );
-     }
-     else
-     {
-       edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) ) FillUserTH1D("h1_DijetMass_denom_HT600", getVariableValue("DijetMass") );
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) && triggerResults->accept( idx_num ) ) FillUserTH1D("h1_DijetMass_num_HT600", getVariableValue("DijetMass") );
      }
    }
-
-   // HLT_HT650
-   trigger_name = ht650_name;
-   if( iEvent.id().run() >= 175832 && iEvent.id().run() <= 178162 )
+   else if( matched_num.size()>1 || matched_denom.size()>1 )
    {
-     index = hltConfig.triggerIndex(trigger_name);
-     if( index < triggerResults->size() )
-     {
-       if( passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_denom_HT650", getVariableValue("DijetMass_denom") );
-
-       if( triggerResults->accept( index ) && passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_num_HT650", getVariableValue("DijetMass_denom") );
-     }
-     else
-     {
-       edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
-     }
+     edm::LogWarning("MyAnalyzer::filter") << "More than one matching trigger found for "<<trigger_pattern_num<<" or "<<trigger_pattern_denom;
+     cout<<"Matched num:";
+     for(vector<string>::const_iterator it = matched_num.begin(); it != matched_num.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+     cout<<"Matched denom:";
+     for(vector<string>::const_iterator it = matched_denom.begin(); it != matched_denom.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
    }
 
-   // HLT_HT750
-   trigger_name = ht750_name;
-   if( iEvent.id().run() >= 178420 )
-   {
-     index = hltConfig.triggerIndex(trigger_name);
-     if( index < triggerResults->size() )
-     {
-       if( passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_denom_HT750", getVariableValue("DijetMass_denom") );
+   // HLT_HT650 (wrt HLT_HT400)
+   trigger_pattern_num = "HLT_HT650_v*";
+   trigger_pattern_denom = "HLT_HT400_v*";
 
-       if( triggerResults->accept( index ) && passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_num_HT750", getVariableValue("DijetMass_denom") );
-     }
-     else
+   matched_num = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_num);
+   matched_denom = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_denom);
+
+   if( matched_num.size()==1 && matched_denom.size()==1 )
+   {
+     int prescale = -1;
+     if(hltConfig.prescaleSet(iEvent, iSetup)<0) edm::LogError("RootTupleMakerV2_TriggerError") << "Error! The prescale set index number could not be obtained";
+     else prescale = hltConfig.prescaleValue(iEvent, iSetup, matched_num.front());
+
+     if( prescale == 1 )
      {
-       edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
+//        cout<<matched_num.front()<<endl;
+//        cout<<matched_denom.front()<<endl;
+       int idx_num = hltConfig.triggerIndex(matched_num.front());
+       int idx_denom = hltConfig.triggerIndex(matched_denom.front());
+
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) ) FillUserTH1D("h1_DijetMass_denom_HT650", getVariableValue("DijetMass") );
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) && triggerResults->accept( idx_num ) ) FillUserTH1D("h1_DijetMass_num_HT650", getVariableValue("DijetMass") );
      }
    }
-
-   // HLT_FatJetMass850
-   trigger_name = fatjet850_name;
-   if( iEvent.id().run() >= 167039 )
+   else if( matched_num.size()>1 || matched_denom.size()>1 )
    {
-     index = hltConfig.triggerIndex(trigger_name);
-     if( index < triggerResults->size() )
+     edm::LogWarning("MyAnalyzer::filter") << "More than one matching trigger found for "<<trigger_pattern_num<<" or "<<trigger_pattern_denom;
+     cout<<"Matched num:";
+     for(vector<string>::const_iterator it = matched_num.begin(); it != matched_num.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+     cout<<"Matched denom:";
+     for(vector<string>::const_iterator it = matched_denom.begin(); it != matched_denom.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+   }
+
+   // HLT_HT750 (wrt HLT_HT450)
+   trigger_pattern_num = "HLT_HT750_v*";
+   trigger_pattern_denom = "HLT_HT450_v*";
+
+   matched_num = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_num);
+   matched_denom = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_denom);
+
+   if( matched_num.size()==1 && matched_denom.size()==1 )
+   {
+     int prescale = -1;
+     if(hltConfig.prescaleSet(iEvent, iSetup)<0) edm::LogError("RootTupleMakerV2_TriggerError") << "Error! The prescale set index number could not be obtained";
+     else prescale = hltConfig.prescaleValue(iEvent, iSetup, matched_num.front());
+
+     if( prescale == 1 )
      {
-       if( passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_denom_FatJet850", getVariableValue("DijetMass_denom") );
-       
-       if( triggerResults->accept( index ) && passedAllPreviousCuts("DijetMass_denom") ) FillUserTH1D("h1_DijetMass_num_FatJet850", getVariableValue("DijetMass_denom") );
+//        cout<<matched_num.front()<<endl;
+//        cout<<matched_denom.front()<<endl;
+       int idx_num = hltConfig.triggerIndex(matched_num.front());
+       int idx_denom = hltConfig.triggerIndex(matched_denom.front());
+
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) ) FillUserTH1D("h1_DijetMass_denom_HT750", getVariableValue("DijetMass") );
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) && triggerResults->accept( idx_num ) ) FillUserTH1D("h1_DijetMass_num_HT750", getVariableValue("DijetMass") );
      }
-     else
+   }
+   else if( matched_num.size()>1 || matched_denom.size()>1 )
+   {
+     edm::LogWarning("MyAnalyzer::filter") << "More than one matching trigger found for "<<trigger_pattern_num<<" or "<<trigger_pattern_denom;
+     cout<<"Matched num:";
+     for(vector<string>::const_iterator it = matched_num.begin(); it != matched_num.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+     cout<<"Matched denom:";
+     for(vector<string>::const_iterator it = matched_denom.begin(); it != matched_denom.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+   }
+
+   // HLT_FatJetMass850_DR1p1_Deta2p0 (wrt HLT_HT450)
+   trigger_pattern_num = "HLT_FatJetMass850_DR1p1_Deta2p0_v*";
+   trigger_pattern_denom = "HLT_HT450_v*";
+
+   matched_num = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_num);
+   matched_denom = hltConfig.matched(hltConfig.triggerNames(),trigger_pattern_denom);
+
+   if( matched_num.size()==1 && matched_denom.size()==1 )
+   {
+     int prescale = -1;
+     if(hltConfig.prescaleSet(iEvent, iSetup)<0) edm::LogError("RootTupleMakerV2_TriggerError") << "Error! The prescale set index number could not be obtained";
+     else prescale = hltConfig.prescaleValue(iEvent, iSetup, matched_num.front());
+
+     if( prescale == 1 )
      {
-       edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << trigger_name << "\" does not exist";
+//        cout<<matched_num.front()<<endl;
+//        cout<<matched_denom.front()<<endl;
+       int idx_num = hltConfig.triggerIndex(matched_num.front());
+       int idx_denom = hltConfig.triggerIndex(matched_denom.front());
+
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) ) FillUserTH1D("h1_DijetMass_denom_FatJet850", getVariableValue("DijetMass") );
+       if( passedAllPreviousCuts("DijetMass") && triggerResults->accept( idx_denom ) && triggerResults->accept( idx_num ) ) FillUserTH1D("h1_DijetMass_num_FatJet850", getVariableValue("DijetMass") );
      }
+   }
+   else if( matched_num.size()>1 || matched_denom.size()>1 )
+   {
+     edm::LogWarning("MyAnalyzer::filter") << "More than one matching trigger found for "<<trigger_pattern_num<<" or "<<trigger_pattern_denom;
+     cout<<"Matched num:";
+     for(vector<string>::const_iterator it = matched_num.begin(); it != matched_num.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
+     cout<<"Matched denom:";
+     for(vector<string>::const_iterator it = matched_denom.begin(); it != matched_denom.end(); ++it ) cout<<" "<<(*it);
+     cout<<endl;
    }
    
    // select only those events that pass the full selection
-   ret = passedCut("all");
+//    ret = passedCut("all");
 
    //############################# User's code ends here #################################
    //#####################################################################################
