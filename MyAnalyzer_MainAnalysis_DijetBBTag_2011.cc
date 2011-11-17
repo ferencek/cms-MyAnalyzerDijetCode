@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.3 2011/11/14 02:35:11 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.4 2011/11/15 02:04:19 ferencek Exp $
 //
 //
 
@@ -47,7 +47,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // ROOT
-#include <TH1D.h>
 #include <TLorentzVector.h>
 
 
@@ -139,7 +138,7 @@ MyAnalyzer::~MyAnalyzer()
 double PileUpDistMC_ObservedBX0_d[35] = {1.45346E-01,6.42802E-02,6.95255E-02,6.96747E-02,6.92955E-02,6.84997E-02,6.69528E-02,6.45515E-02,6.09865E-02,5.63323E-02,5.07322E-02,4.44681E-02,3.79205E-02,3.15131E-02,2.54220E-02,2.00184E-02,1.53776E-02,1.15387E-02,8.47608E-03,6.08715E-03,4.28255E-03,2.97185E-03,2.01918E-03,1.34490E-03,8.81587E-04,5.69954E-04,3.61493E-04,2.28692E-04,1.40791E-04,8.44606E-05,5.10204E-05,3.07802E-05,1.81401E-05,1.00201E-05,5.80004E-06};
 vector<float> PileUpDistMC_ObservedBX0(PileUpDistMC_ObservedBX0_d, PileUpDistMC_ObservedBX0_d + sizeof(PileUpDistMC_ObservedBX0_d) / sizeof(double) );
 // Run2011A pile-up distribution
-double PileUpDistData_Observed_d[35] = {12965370.0, 55851368.0, 129329360.0, 212133600.0, 276137728.0, 303603552.0, 293257504.0, 255632864.0, 204970016.0, 153263664.0, 107935616.0, 72100608.0, 45912988.0, 27970044.0, 16342576.0, 9175983.0, 4958610.0, 2582392.75, 1297695.75, 629975.0625, 295784.25, 134469.671875, 59260.0703125, 25343.8671875, 10530.08984375, 4255.04833984375, 1673.949462890625, 641.7764892578125, 240.02249145507812, 87.650428771972656, 31.280984878540039, 10.919528007507324, 3.7314565181732178, 1.2492282390594482, 0.60236752033233643};
+double PileUpDistData_Observed_d[35] = {13446512.0, 59065300.0, 140902672.0, 241301168.0, 333744896.0, 398710976.0, 430106432.0, 432283008.0, 413820192.0, 382845984.0, 345163680.0, 304343808.0, 262555024.0, 221330752.0, 181982560.0, 145689760.0, 113413440.0, 85778864.0, 63012392.0, 44959588.0, 31169040.0, 21007856.0, 13775880.0, 8796407.0, 5474417.5, 3323775.5, 1970637.75, 1142040.5, 647538.625, 359547.1875, 195673.15625, 104459.9453125, 54745.15234375, 28185.56640625, 28005.548828125};
 vector<float> PileUpDistData_Observed(PileUpDistData_Observed_d, PileUpDistData_Observed_d + sizeof(PileUpDistData_Observed_d) / sizeof(double) );
 
 //
@@ -206,8 +205,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int btagger = int(getPreCutValue1("btagger"));
    
    // grab necessary objects from the event
-   edm::Handle<edm::TriggerResults> triggerResults;
-   iEvent.getByLabel(hltInputTag, triggerResults);
+//    edm::Handle<edm::TriggerResults> triggerResults;
+//    iEvent.getByLabel(hltInputTag, triggerResults);
 
    edm::Handle<vector<double> > PVZ;
    iEvent.getByLabel(edm::InputTag("Vertices:Z"), PVZ);
@@ -295,32 +294,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    double pretagWeight = eventWeight;
    double tagWeight = pretagWeight;
-   
-   string jetTrigger_name = "HLT_Jet370_v1";
-   if( iEvent.id().run() >= 163269 ) jetTrigger_name = "HLT_Jet370_v2";
-   if( iEvent.id().run() >= 165088 ) jetTrigger_name = "HLT_Jet370_v3";
-   if( iEvent.id().run() >= 165970 ) jetTrigger_name = "HLT_Jet370_v4";
-   if( iEvent.id().run() == 166346 ) jetTrigger_name = "HLT_Jet370_v5";
-   if( iEvent.id().run() >= 167078 ) jetTrigger_name = "HLT_Jet370_v6";
-   if( iEvent.id().run() >= 176545 ) jetTrigger_name = "HLT_Jet370_v7";
-   if( iEvent.id().run() >= 178420 ) jetTrigger_name = "HLT_Jet370_v10";
-
-   // check trigger (only in data)
-   int jetTrigger_fired = 0;
-
-   if( iEvent.isRealData() )
-   {
-     size_t index = hltConfig.triggerIndex(jetTrigger_name);
-     if( index < triggerResults->size() )
-     {
-       if( triggerResults->accept( index ) ) jetTrigger_fired = 1;
-     }
-     else
-     {
-       edm::LogWarning("MyAnalyzer::filter") << "Requested HLT path \"" << jetTrigger_name << "\" does not exist";
-     }
-   }
-   else jetTrigger_fired = 1;
 
    // loop over PFJets
    vector<int> v_idx_pfjet_JetID;
@@ -368,7 +341,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
    
-   fillVariableWithValue("PassHLT", jetTrigger_fired, pretagWeight );
    fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), pretagWeight );
    fillVariableWithValue("PassBeamHaloFltTight", ( !(*passBeamHaloFilterTight) ? 1 : 0 ), pretagWeight ); // there is a bug in the ntuple maker (V00-00-01 and V00-00-02) so have to take the negative of the stored flag
    fillVariableWithValue("PassTrackingFailure", ( *passTrackingFailure ? 1 : 0 ), pretagWeight );
@@ -399,7 +371,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      
-     fillVariableWithValue( "DijetMass1050", v_j1j2.M(), pretagWeight );
+     fillVariableWithValue( "DijetMass900", v_j1j2.M(), pretagWeight );
 
      TVector2 v2_j1, v2_j2;
      v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
@@ -407,7 +379,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ), pretagWeight );
      
-     fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMass1050"), pretagWeight );
+     fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMass900"), pretagWeight );
 
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
@@ -464,7 +436,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        fillVariableWithValue( "nJets_btag", nBTaggedJets, tagWeight );
      }
-     fillVariableWithValue( "DijetMass", getVariableValue("DijetMass1050"), tagWeight );
+     fillVariableWithValue( "DijetMass", getVariableValue("DijetMass900"), tagWeight );
      fillVariableWithValue( "nMuons", nMuons, tagWeight );
    }
    
@@ -476,8 +448,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
    }
-   if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass1050"), double(nMuons)*pretagWeight );
-   if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass1050"), double(nMuons)*tagWeight );
+   if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass900"), double(nMuons)*pretagWeight );
+   if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass900"), double(nMuons)*tagWeight );
 
    // select only those events that pass the full selection
    if( passedCut("all") ) ret = true;
@@ -492,7 +464,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        tagWeight = eventWeight*bTagEventWeight(scaleFactors,nbtags);
 
        fillVariableWithValue( "nJets_btag", nbtags, tagWeight );
-       fillVariableWithValue( "DijetMass", getVariableValue("DijetMass1050"), tagWeight );
+       fillVariableWithValue( "DijetMass", getVariableValue("DijetMass900"), tagWeight );
        fillVariableWithValue( "nMuons", nMuons, tagWeight );
 
        // Evaluate cuts (but do not apply them)
@@ -503,8 +475,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
          FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
        }
-       if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass1050"), double(nMuons)*pretagWeight );
-       if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass1050"), double(nMuons)*tagWeight );
+       if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass900"), double(nMuons)*pretagWeight );
+       if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass900"), double(nMuons)*tagWeight );
 
        // select only those events that pass the full selection
        if( passedCut("all") ) ret = true;
