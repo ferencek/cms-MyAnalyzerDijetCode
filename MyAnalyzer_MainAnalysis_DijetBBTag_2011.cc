@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.4 2011/11/15 02:04:19 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.5 2011/11/17 23:22:38 ferencek Exp $
 //
 //
 
@@ -153,9 +153,9 @@ MyAnalyzer::beginJob()
    //########################### User's code starts here #################################/
    
    // book your histograms here
-   CreateUserTH1D("h1_J1J2PartonFlavor", 51, -0.5, 50.5);
-   CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_nMuons_vs_DijetMass", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_J1J2PartonFlavor;Parton Flavor (PDG ID);Entries", 51, -0.5, 50.5);
+   CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    
    // initialize your variables here
    LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistData_Observed);
@@ -208,8 +208,16 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    edm::Handle<edm::TriggerResults> triggerResults;
 //    iEvent.getByLabel(hltInputTag, triggerResults);
 
+   edm::Handle<vector<bool> > PVIsFake;
+   iEvent.getByLabel(edm::InputTag("Vertices:IsFake"), PVIsFake);
+   edm::Handle<vector<double> > PVX;
+   iEvent.getByLabel(edm::InputTag("Vertices:X"), PVX);
+   edm::Handle<vector<double> > PVY;
+   iEvent.getByLabel(edm::InputTag("Vertices:Y"), PVY);
    edm::Handle<vector<double> > PVZ;
    iEvent.getByLabel(edm::InputTag("Vertices:Z"), PVZ);
+   edm::Handle<vector<double> > PVNDF;
+   iEvent.getByLabel(edm::InputTag("Vertices:NDF"), PVNDF);
    
    edm::Handle<vector<unsigned int> > NPU;
    iEvent.getByLabel(edm::InputTag("GenEventInfo:PileUpNumberOfInteractions"), NPU);
@@ -325,6 +333,19 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        v_idx_muon_tight.push_back(i);
    }
 
+   // loop over primary vertices and select good ones
+   vector<int> v_idx_goodPV;
+   for(size_t i=0; i<PVIsFake->size(); i++)
+   {
+       double rho = sqrt(PVX->at(i)*PVX->at(i) + PVY->at(i)*PVY->at(i));
+
+       if( PVIsFake->at(i) ) continue;
+       if( !(PVNDF->at(i) > 4) ) continue;
+       if( !(fabs(PVZ->at(i)) <= 24) ) continue;
+       if( !(rho <= 2) ) continue;
+       v_idx_goodPV.push_back(i);
+   }
+
    int passEEAnomJetFilter = 1;
    if( v_idx_pfjet_JetID.size() > 0 )
    {
@@ -351,7 +372,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue("nJets_all", PFJetPt->size(), pretagWeight);
    fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), pretagWeight);
 
-   fillVariableWithValue("nGoodVertices", PVZ->size(), pretagWeight );
+   fillVariableWithValue("nGoodVertices", v_idx_goodPV.size(), pretagWeight );
 
    if( v_idx_pfjet_JetID.size() >= 1 )
    {
