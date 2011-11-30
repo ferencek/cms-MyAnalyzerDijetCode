@@ -156,6 +156,68 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_J1J2PartonFlavor;Parton Flavor (PDG ID);Entries", 51, -0.5, 50.5);
    CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+
+   int doEventCategories = int(getPreCutValue1("doEventCategories"));
+   if( doEventCategories )
+   {
+     // histograms for in-situ b-tag SF measurement
+     // 0 muon, maxEta<1.2 case:
+     CreateUserTH2D("h2_n0_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n1_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n2_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N220_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N210_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N200_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N111_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N110_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N101_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N100_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N002_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N001_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N000_0mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     // 0 muon, maxEta>=1.2 case:
+     CreateUserTH2D("h2_n0_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n1_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n2_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N220_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N210_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N200_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N111_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N110_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N101_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N100_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N002_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N001_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N000_0mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     // >=1 muon, maxEta<1.2 case:
+     CreateUserTH2D("h2_n0_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n1_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n2_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N220_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N210_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N200_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N111_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N110_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N101_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N100_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N002_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N001_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N000_ge1mu_maxEta_lt_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     // >=1 muon, maxEta<1.2 case:
+     CreateUserTH2D("h2_n0_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n1_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_n2_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N220_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N210_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N200_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N111_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N110_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N101_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N100_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N002_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N001_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+     CreateUserTH2D("h2_N000_ge1mu_maxEta_ge_1p2;Dijet Mass [GeV];nPV",getHistoNBins("DijetMass"),getHistoMin("DijetMass"),getHistoMax("DijetMass"),getHistoNBins("nGoodVertices"),getHistoMin("nGoodVertices"),getHistoMax("nGoodVertices"));
+   }
    
    // initialize your variables here
    LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistData_Observed);
@@ -203,6 +265,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
    int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
    int btagger = int(getPreCutValue1("btagger"));
+   int doEventCategories = int(getPreCutValue1("doEventCategories"));
    
    // grab necessary objects from the event
 //    edm::Handle<edm::TriggerResults> triggerResults;
@@ -253,6 +316,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
    edm::Handle<vector<double> > PFJetTCHE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
+   edm::Handle<vector<double> > PFJetTCHP;
+   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
    edm::Handle<vector<int> > PFJetPartonFlavor;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
    
@@ -303,11 +368,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double pretagWeight = eventWeight;
    double tagWeight = pretagWeight;
 
-   // loop over PFJets
+   // loop over PFJets and select PFJets that pass JetID requirements
    vector<int> v_idx_pfjet_JetID;
    for(size_t i=0; i<PFJetPt->size(); i++)
    {
-       // select PFJets that pass JetID requirments
        if( !PFJetPassJetID->at(i) ) continue;
        v_idx_pfjet_JetID.push_back(i);
    }
@@ -357,6 +421,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int nBTaggedJets = 0;
    vector<double> scaleFactors;
+   int nHeavyFlavorJets = 0;
+   int nBTaggedHeavyFlavorJets = 0;
    int nMuons = 0;
    
    // Set the evaluation of the cuts to false and clear the variable values and filled status
@@ -392,7 +458,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      
-     fillVariableWithValue( "DijetMass900", v_j1j2.M(), pretagWeight );
+     fillVariableWithValue( "DijetMassThreshold", v_j1j2.M(), pretagWeight );
 
      TVector2 v2_j1, v2_j2;
      v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
@@ -400,37 +466,23 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ), pretagWeight );
      
-     fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMass900"), pretagWeight );
+     fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMassThreshold"), pretagWeight );
 
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
      {
-       if(btagger==1)
+       bool isHeavyFlavor = false;
+       if( !iEvent.isRealData() && ( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==4 || abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) ) { ++nHeavyFlavorJets; isHeavyFlavor = true; }
+      
+       if( (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
+           (btagger==2 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) ||
+           (btagger==3 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
+           (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) )
        {
-         if( PFJetSSVHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHEM_WP") )
-         {
-           ++nBTaggedJets;
-           // if MC, get b-tag scale factor
-           if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]),PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
-         }
-       }
-       else if(btagger==2)
-       {
-         if( PFJetSSVHP->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHPT_WP") )
-         {
-           ++nBTaggedJets;
-           // if MC, get b-tag scale factor
-           if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]),PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
-         }
-       }
-       else
-       {
-         if( PFJetTCHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("TCHEM_WP") )
-         {
-           ++nBTaggedJets;
-           // if MC, get b-tag scale factor
-           if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]),PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
-         }
+         ++nBTaggedJets;
+         if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
+         // if MC, get b-tag scale factor
+         if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]),PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
        }
 
        // jet and muon Lorentz vectors
@@ -457,7 +509,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        fillVariableWithValue( "nJets_btag", nBTaggedJets, tagWeight );
      }
-     fillVariableWithValue( "DijetMass", getVariableValue("DijetMass900"), tagWeight );
+     fillVariableWithValue( "DijetMass", getVariableValue("DijetMassThreshold"), tagWeight );
      fillVariableWithValue( "nMuons", nMuons, tagWeight );
    }
    
@@ -469,11 +521,140 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
    }
-   if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass900"), double(nMuons)*pretagWeight );
-   if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass900"), double(nMuons)*tagWeight );
+   if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass"), double(nMuons)*pretagWeight );
+   if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass"), double(nMuons)*tagWeight );
 
    // select only those events that pass the full selection
    if( passedCut("all") ) ret = true;
+
+   // fill 3D histograms
+   if( doEventCategories && passedAllPreviousCuts("DijetMass_pretag") )
+   {
+     if( nMuons==0 && max(getVariableValue("absEtaJ1"),getHistoMin("absEtaJ2"))<1.2 )
+     {
+       if( iEvent.isRealData() )
+       {
+         if( nBTaggedJets==0 ) FillUserTH2D("h2_n0_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==1 ) FillUserTH2D("h2_n1_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==2 ) FillUserTH2D("h2_n2_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+       }
+       else if( !iEvent.isRealData() )
+       {
+         if( nHeavyFlavorJets==2 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N220_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N210_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N200_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==1 )
+         {
+           if( nBTaggedJets==2 )                                    FillUserTH2D("h2_N111_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==1 ) FillUserTH2D("h2_N110_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==0 ) FillUserTH2D("h2_N101_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==0 )                               FillUserTH2D("h2_N100_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==0 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N002_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N001_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N000_0mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+       }
+     }
+     else if( nMuons==0 && max(getVariableValue("absEtaJ1"),getHistoMin("absEtaJ2"))>=1.2 )
+     {
+       if( iEvent.isRealData() )
+       {
+         if( nBTaggedJets==0 ) FillUserTH2D("h2_n0_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==1 ) FillUserTH2D("h2_n1_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==2 ) FillUserTH2D("h2_n2_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+       }
+       else if( !iEvent.isRealData() )
+       {
+         if( nHeavyFlavorJets==2 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N220_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N210_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N200_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==1 )
+         {
+           if( nBTaggedJets==2 )                                    FillUserTH2D("h2_N111_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==1 ) FillUserTH2D("h2_N110_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==0 ) FillUserTH2D("h2_N101_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==0 )                               FillUserTH2D("h2_N100_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==0 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N002_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N001_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N000_0mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+       }
+     }
+     else if( nMuons>=1 && max(getVariableValue("absEtaJ1"),getHistoMin("absEtaJ2"))<1.2 )
+     {
+       if( iEvent.isRealData() )
+       {
+         if( nBTaggedJets==0 ) FillUserTH2D("h2_n0_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==1 ) FillUserTH2D("h2_n1_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==2 ) FillUserTH2D("h2_n2_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+       }
+       else if( !iEvent.isRealData() )
+       {
+         if( nHeavyFlavorJets==2 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N220_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N210_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N200_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==1 )
+         {
+           if( nBTaggedJets==2 )                                    FillUserTH2D("h2_N111_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==1 ) FillUserTH2D("h2_N110_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==0 ) FillUserTH2D("h2_N101_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==0 )                               FillUserTH2D("h2_N100_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==0 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N002_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N001_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N000_ge1mu_maxEta_lt_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+       }
+     }
+     else if( nMuons>=1 && max(getVariableValue("absEtaJ1"),getHistoMin("absEtaJ2"))>=1.2 )
+     {
+       if( iEvent.isRealData() )
+       {
+         if( nBTaggedJets==0 ) FillUserTH2D("h2_n0_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==1 ) FillUserTH2D("h2_n1_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         if( nBTaggedJets==2 ) FillUserTH2D("h2_n2_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+       }
+       else if( !iEvent.isRealData() )
+       {
+         if( nHeavyFlavorJets==2 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N220_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N210_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N200_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==1 )
+         {
+           if( nBTaggedJets==2 )                                    FillUserTH2D("h2_N111_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==1 ) FillUserTH2D("h2_N110_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 && nBTaggedHeavyFlavorJets==0 ) FillUserTH2D("h2_N101_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==0 )                               FillUserTH2D("h2_N100_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+         else if( nHeavyFlavorJets==0 )
+         {
+           if( nBTaggedJets==2 )      FillUserTH2D("h2_N002_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else if( nBTaggedJets==1 ) FillUserTH2D("h2_N001_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+           else                       FillUserTH2D("h2_N000_ge1mu_maxEta_ge_1p2",getVariableValue("DijetMass"),getVariableValue("nGoodVertices"),pretagWeight);
+         }
+       }
+     }
+   }
 
    if( v_idx_pfjet_JetID.size() >= 2 && !iEvent.isRealData() && doSFReweighting )
    {
@@ -485,19 +666,13 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        tagWeight = eventWeight*bTagEventWeight(scaleFactors,nbtags);
 
        fillVariableWithValue( "nJets_btag", nbtags, tagWeight );
-       fillVariableWithValue( "DijetMass", getVariableValue("DijetMass900"), tagWeight );
+       fillVariableWithValue( "DijetMass", getVariableValue("DijetMass"), tagWeight );
        fillVariableWithValue( "nMuons", nMuons, tagWeight );
 
        // Evaluate cuts (but do not apply them)
        evaluateCuts();
 
-       if(passedAllPreviousCuts("DijetMass_pretag"))
-       {
-         FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
-         FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
-       }
-       if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass900"), double(nMuons)*pretagWeight );
-       if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass900"), double(nMuons)*tagWeight );
+       if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass"), double(nMuons)*tagWeight );
 
        // select only those events that pass the full selection
        if( passedCut("all") ) ret = true;
