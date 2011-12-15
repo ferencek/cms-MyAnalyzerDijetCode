@@ -70,7 +70,7 @@ class MyAnalyzer : public BaseClass, public edm::EDFilter {
       virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
-      int bQuark_0_counter, bQuark_1_counter, bQuark_0_bcHadron_2_counter, bQuark_2_bcHadron_0_counter, bQuark_st2_0_st3_2_counter;
+      int bQuark_0_counter, bQuark_st2_1_counter, bQuark_st2_0_bcHadron_2_counter, bQuark_st2_2_bcHadron_0_counter, bQuark_st2_0_st3_2_counter;
 };
 
 //
@@ -119,9 +119,9 @@ MyAnalyzer::beginJob()
    
    // initialize your variables here
    bQuark_0_counter = 0;
-   bQuark_1_counter = 0;
-   bQuark_0_bcHadron_2_counter = 0;
-   bQuark_2_bcHadron_0_counter = 0;
+   bQuark_st2_1_counter = 0;
+   bQuark_st2_0_bcHadron_2_counter = 0;
+   bQuark_st2_2_bcHadron_0_counter = 0;
    bQuark_st2_0_st3_2_counter = 0;
    
    //############################# User's code ends here #################################
@@ -167,7 +167,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("EventSelection:PassPrimaryVertex"), passPrimaryVertex);
    edm::Handle<bool> passBeamScraping;
    iEvent.getByLabel(edm::InputTag("EventSelection:PassBeamScraping"), passBeamScraping);
-   
+
    edm::Handle<vector<double> > PFJetPt;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt);
    edm::Handle<vector<double> > PFJetEta;
@@ -348,22 +348,22 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if( bQuark_0_counter<11 ) cout << ">> bQuark_0 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
      }
 
-     if( case3_counter==1 )
+     if( case1_counter==1 )
      {
-       ++bQuark_1_counter;
-       if( bQuark_1_counter<11 ) cout << ">> bQuark_1 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
+       ++bQuark_st2_1_counter;
+       if( bQuark_st2_1_counter<11 ) cout << ">> bQuark_st2_1 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
      }
 
-     if( case3_counter==0 && case5_counter==2 )
+     if( case1_counter==0 && case5_counter==2 )
      {
-       ++bQuark_0_bcHadron_2_counter;
-       if( bQuark_0_bcHadron_2_counter<11 ) cout << ">> bQuark_0_bcHadron_2 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
+       ++bQuark_st2_0_bcHadron_2_counter;
+       if( bQuark_st2_0_bcHadron_2_counter<11 ) cout << ">> bQuark_st2_0_bcHadron_2 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
      }
 
-     if( case3_counter==2 && case5_counter==0 )
+     if( case1_counter==2 && case5_counter==0 )
      {
-       ++bQuark_2_bcHadron_0_counter;
-       if( bQuark_2_bcHadron_0_counter<11 ) cout << ">> bQuark_2_bcHadron_0 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
+       ++bQuark_st2_2_bcHadron_0_counter;
+       if( bQuark_st2_2_bcHadron_0_counter<11 ) cout << ">> bQuark_st2_2_bcHadron_0 --> Run:LS:Event = " << iEvent.id().run() << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event() << endl;
      }
      
      if( case1_counter==0 && case2_counter==2 )
@@ -421,9 +421,9 @@ MyAnalyzer::endJob()
    if( eventPrintout )
    {
      cout << ">> bQuark_0: " << bQuark_0_counter << " events in total" << endl
-          << ">> bQuark_1: " << bQuark_1_counter << " events in total" << endl
-          << ">> bQuark_0_bcHadron_2: " << bQuark_0_bcHadron_2_counter << " events in total" << endl
-          << ">> bQuark_2_bcHadron_0: " << bQuark_2_bcHadron_0_counter << " events in total" << endl
+          << ">> bQuark_st2_1: " << bQuark_st2_1_counter << " events in total" << endl
+          << ">> bQuark_st2_0_bcHadron_2: " << bQuark_st2_0_bcHadron_2_counter << " events in total" << endl
+          << ">> bQuark_st2_2_bcHadron_0: " << bQuark_st2_2_bcHadron_0_counter << " events in total" << endl
           << ">> bQuark_st2_0_st3_2: " << bQuark_st2_0_st3_2_counter << " events in total" << endl;
    }
  
