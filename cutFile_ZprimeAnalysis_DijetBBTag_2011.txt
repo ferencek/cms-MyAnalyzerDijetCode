@@ -12,7 +12,7 @@
 #
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
-matchingRadius                  0.5             -               -               -               -1
+matchingRadius                  0.4             -               -               -               -1
 # matching type (0: flavor matching tool, 1: b quark (status=2), 2: b quark (status=3), 3: b quark (status=2 or status=3), 4: b hadron, 5: b or c hadron)
 matchingType                    5               -               -               -               -1
 eventPrintout                   0               -               -               -               -1
