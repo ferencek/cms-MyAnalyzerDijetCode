@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.5 2011/11/17 23:22:38 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.7 2011/11/30 09:46:43 ferencek Exp $
 //
 //
 
@@ -134,12 +134,6 @@ MyAnalyzer::~MyAnalyzer()
 //
 // static data member definitions
 //
-// Summer11 PU_S4 distribution obtained by only looking at the in-time crossing.  This is the "spike+smear" distribution, RECOMMENDED FOR REWEIGHTING.
-double PileUpDistMC_ObservedBX0_d[35] = {1.45346E-01,6.42802E-02,6.95255E-02,6.96747E-02,6.92955E-02,6.84997E-02,6.69528E-02,6.45515E-02,6.09865E-02,5.63323E-02,5.07322E-02,4.44681E-02,3.79205E-02,3.15131E-02,2.54220E-02,2.00184E-02,1.53776E-02,1.15387E-02,8.47608E-03,6.08715E-03,4.28255E-03,2.97185E-03,2.01918E-03,1.34490E-03,8.81587E-04,5.69954E-04,3.61493E-04,2.28692E-04,1.40791E-04,8.44606E-05,5.10204E-05,3.07802E-05,1.81401E-05,1.00201E-05,5.80004E-06};
-vector<float> PileUpDistMC_ObservedBX0(PileUpDistMC_ObservedBX0_d, PileUpDistMC_ObservedBX0_d + sizeof(PileUpDistMC_ObservedBX0_d) / sizeof(double) );
-// Run2011A pile-up distribution
-double PileUpDistData_Observed_d[35] = {13446512.0, 59065300.0, 140902672.0, 241301168.0, 333744896.0, 398710976.0, 430106432.0, 432283008.0, 413820192.0, 382845984.0, 345163680.0, 304343808.0, 262555024.0, 221330752.0, 181982560.0, 145689760.0, 113413440.0, 85778864.0, 63012392.0, 44959588.0, 31169040.0, 21007856.0, 13775880.0, 8796407.0, 5474417.5, 3323775.5, 1970637.75, 1142040.5, 647538.625, 359547.1875, 195673.15625, 104459.9453125, 54745.15234375, 28185.56640625, 28005.548828125};
-vector<float> PileUpDistData_Observed(PileUpDistData_Observed_d, PileUpDistData_Observed_d + sizeof(PileUpDistData_Observed_d) / sizeof(double) );
 
 //
 // member functions
@@ -154,11 +148,12 @@ MyAnalyzer::beginJob()
    
    // book your histograms here
    CreateUserTH1D("h1_J1J2PartonFlavor;Parton Flavor (PDG ID);Entries", 51, -0.5, 50.5);
+   CreateUserTH1D("h1_J1J2HeavyFlavor;Heavy Flavor;Entries", 2, -0.5, 1.5);
    CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV]; nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
 
-   int doEventCategories = int(getPreCutValue1("doEventCategories"));
-   if( doEventCategories )
+   int doEventBins = int(getPreCutValue1("doEventBins"));
+   if( doEventBins )
    {
      // histograms for in-situ b-tag SF measurement
      // 0 muon, maxEta<1.2 case:
@@ -220,7 +215,24 @@ MyAnalyzer::beginJob()
    }
    
    // initialize your variables here
-   LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistData_Observed);
+
+   // Summer11 PU_S4 distribution obtained by only looking at the in-time crossing.  This is the "spike+smear" distribution, RECOMMENDED FOR REWEIGHTING.
+   double PileUpDistMC_ObservedBX0_d[35] = {1.45346E-01,6.42802E-02,6.95255E-02,6.96747E-02,6.92955E-02,6.84997E-02,6.69528E-02,6.45515E-02,6.09865E-02,5.63323E-02,5.07322E-02,4.44681E-02,3.79205E-02,3.15131E-02,2.54220E-02,2.00184E-02,1.53776E-02,1.15387E-02,8.47608E-03,6.08715E-03,4.28255E-03,2.97185E-03,2.01918E-03,1.34490E-03,8.81587E-04,5.69954E-04,3.61493E-04,2.28692E-04,1.40791E-04,8.44606E-05,5.10204E-05,3.07802E-05,1.81401E-05,1.00201E-05,5.80004E-06};
+   vector<float> PileUpDistMC_ObservedBX0(PileUpDistMC_ObservedBX0_d, PileUpDistMC_ObservedBX0_d + sizeof(PileUpDistMC_ObservedBX0_d) / sizeof(double) );
+   // Run2011A+Run2011B pile-up distribution
+   double PileUpDistData_Observed_d[35] = {13446512.0, 59065300.0, 140902672.0, 241301168.0, 333744896.0, 398710976.0, 430106432.0, 432283008.0, 413820192.0, 382845984.0, 345163680.0, 304343808.0, 262555024.0, 221330752.0, 181982560.0, 145689760.0, 113413440.0, 85778864.0, 63012392.0, 44959588.0, 31169040.0, 21007856.0, 13775880.0, 8796407.0, 5474417.5, 3323775.5, 1970637.75, 1142040.5, 647538.625, 359547.1875, 195673.15625, 104459.9453125, 54745.15234375, 28185.56640625, 28005.548828125};
+   vector<float> PileUpDistData_Observed(PileUpDistData_Observed_d, PileUpDistData_Observed_d + sizeof(PileUpDistData_Observed_d) / sizeof(double) );
+   // Run2011A pile-up distribution
+   double PileUpDistDataRun2011A_Observed_d[35] = {12965370.0, 55851368.0, 129329360.0, 212133600.0, 276137728.0, 303603552.0, 293257504.0, 255632864.0, 204970016.0, 153263664.0, 107935616.0, 72100608.0, 45912988.0, 27970044.0, 16342576.0, 9175983.0, 4958610.0, 2582392.75, 1297695.75, 629975.0625, 295784.25, 134469.671875, 59260.0703125, 25343.8671875, 10530.08984375, 4255.04833984375, 1673.949462890625, 641.7764892578125, 240.02249145507812, 87.650428771972656, 31.280984878540039, 10.919528007507324, 3.7314565181732178, 1.2492282390594482, 0.60236752033233643};
+   vector<float> PileUpDistDataRun2011A_Observed(PileUpDistDataRun2011A_Observed_d, PileUpDistDataRun2011A_Observed_d + sizeof(PileUpDistDataRun2011A_Observed_d) / sizeof(double) );
+   // Run2011B pile-up distribution
+   double PileUpDistDataRun2011B_Observed_d[35] = {481141.72472439631, 3213932.6435495433, 11573306.879849812, 29167566.222834267, 57607165.266923025, 95107416.620279759, 136848927.47142315, 176650126.03691837, 208850159.2230134, 229582323.64430469, 237228075.21969861, 232243229.29014349, 216642041.8648839, 193360704.19149143, 165639997.39323151, 136513771.36073488, 108454824.41062045, 83196475.076050699, 61714695.179401994, 44329612.988056183, 30873256.083125703, 20873387.048466656, 13716620.52313938, 8771062.8496078029, 5463887.6202946259, 3319520.4784049694, 1968963.8927261904, 1141398.7709201651, 647298.63969274936, 359459.56447747251, 195641.88301312848, 104449.02504469089, 54741.419995713957, 28184.317687585703, 28004.947183609398};
+   vector<float> PileUpDistDataRun2011B_Observed(PileUpDistDataRun2011B_Observed_d, PileUpDistDataRun2011B_Observed_d + sizeof(PileUpDistDataRun2011B_Observed_d) / sizeof(double) );
+   
+   int puReweightingEra = int(getPreCutValue1("puReweightingEra"));
+   if( puReweightingEra==1 ) LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistDataRun2011A_Observed);
+   else if( puReweightingEra==2 ) LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistDataRun2011B_Observed);
+   else LumiWeights = edm::LumiReWeighting(PileUpDistMC_ObservedBX0, PileUpDistData_Observed);
    
    //############################# User's code ends here #################################
    //#####################################################################################
@@ -265,7 +277,12 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
    int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
    int btagger = int(getPreCutValue1("btagger"));
-   int doEventCategories = int(getPreCutValue1("doEventCategories"));
+   int matchingType = int(getPreCutValue1("matchingType"));
+   double matchingRadius = getPreCutValue1("matchingRadius");
+   int doEventBins = int(getPreCutValue1("doEventBins"));
+   int doEventPrintout = int(getPreCutValue1("doEventPrintout"));
+   double METoSumET_cut = getPreCutValue1("METoSumET_cut");
+   double DeltaPhiJ1J2_cut = getPreCutValue1("DeltaPhiJ1J2_cut");
    
    // grab necessary objects from the event
 //    edm::Handle<edm::TriggerResults> triggerResults;
@@ -286,6 +303,17 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("GenEventInfo:PileUpNumberOfInteractions"), NPU);
    edm::Handle<vector<int> > BX;
    iEvent.getByLabel(edm::InputTag("GenEventInfo:PileUpBunchCrossing"), BX);
+
+   edm::Handle<vector<double> > GenParticlePt;
+   iEvent.getByLabel(edm::InputTag("GenParticles:Pt"), GenParticlePt);
+   edm::Handle<vector<double> > GenParticleEta;
+   iEvent.getByLabel(edm::InputTag("GenParticles:Eta"), GenParticleEta);
+   edm::Handle<vector<double> > GenParticlePhi;
+   iEvent.getByLabel(edm::InputTag("GenParticles:Phi"), GenParticlePhi);
+   edm::Handle<vector<double> > GenParticleE;
+   iEvent.getByLabel(edm::InputTag("GenParticles:Energy"), GenParticleE);
+   edm::Handle<vector<int> > GenParticlePdgId;
+   iEvent.getByLabel(edm::InputTag("GenParticles:PdgId"), GenParticlePdgId);
    
    edm::Handle<bool> passHBHENoiseFilter;
    iEvent.getByLabel(edm::InputTag("EventSelection:PassHBHENoiseFilter"), passHBHENoiseFilter);
@@ -297,6 +325,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("EventSelection:PassEcalMaskedCellDRFilter"), passEcalMaskedCellDRFilter);
    edm::Handle<bool> passCaloBoundaryDRFilter;
    iEvent.getByLabel(edm::InputTag("EventSelection:PassCaloBoundaryDRFilter"), passCaloBoundaryDRFilter);
+
+   edm::Handle<vector<double> > MET;
+   iEvent.getByLabel(edm::InputTag("PFMET:Mag"), MET);
+   edm::Handle<vector<double> > SumET;
+   iEvent.getByLabel(edm::InputTag("PFMET:SumET"), SumET);
    
    edm::Handle<vector<double> > PFJetPt;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt);
@@ -333,6 +366,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("Muons:NHitsTracker"), MuonNValidTrackerHits);
    edm::Handle<vector<int> > MuonNValidPixelHits;
    iEvent.getByLabel(edm::InputTag("Muons:NHitsPixel"), MuonNValidPixelHits);
+   edm::Handle<vector<int> > MuonNLostTrackerHitsOut;
+   iEvent.getByLabel(edm::InputTag("Muons:NLostHitsTrackerOut"), MuonNLostTrackerHitsOut);
    edm::Handle<vector<int> > MuonNValidMuonHits;
    iEvent.getByLabel(edm::InputTag("Muons:NHitsMuon"), MuonNValidMuonHits);
    edm::Handle<vector<int> > MuonNMatches;
@@ -345,10 +380,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("Muons:TrkChi2"), MuonTrkChi2);
    edm::Handle<vector<double> > MuonTrkNdof;
    iEvent.getByLabel(edm::InputTag("Muons:TrkNdof"), MuonTrkNdof);
-   edm::Handle<vector<double> > MuonPVXYDistance;
-   iEvent.getByLabel(edm::InputTag("Muons:PVXYDistance"), MuonPVXYDistance);
-   edm::Handle<vector<double> > MuonPV3DDistance;
-   iEvent.getByLabel(edm::InputTag("Muons:PV3DDistance"), MuonPV3DDistance);
+   edm::Handle<vector<double> > MuonRefPtZ;
+   iEvent.getByLabel(edm::InputTag("Muons:RefPtZ"), MuonRefPtZ);
 
    // apply pile-up reweighting
    if( !iEvent.isRealData() && doPUReweighting )
@@ -376,30 +409,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        v_idx_pfjet_JetID.push_back(i);
    }
 
-   // loop over muons and select muons passing tight muon ID
-   vector<int> v_idx_muon_tight;
-   for(size_t i=0; i<MuonPt->size(); i++)
-   {
-       double normChi2 = (MuonNdof->at(i) != 0 ? MuonChi2->at(i) / MuonNdof->at(i) : MuonChi2->at(i) * 1e6);
-       double normTrkChi2 = (MuonTrkNdof->at(i) != 0 ? MuonTrkChi2->at(i) / MuonTrkNdof->at(i) : MuonTrkChi2->at(i) * 1e6);
-       double deltaZ = sqrt( pow(MuonPV3DDistance->at(i),2) - pow(MuonPVXYDistance->at(i),2) );
-
-       if( !MuonIsGlobal->at(i) ) continue;
-       if( !(MuonPt->at(i) > 5) ) continue;
-       if( !(fabs(MuonEta->at(i)) < 2.4) ) continue;
-       if( !(MuonNValidTrackerHits->at(i) > 10) ) continue;
-       if( !(MuonNValidPixelHits->at(i) > 1) ) continue;
-       if( !(MuonNValidMuonHits->at(i) > 0) ) continue;
-       if( !(MuonNMatches->at(i) > 1) ) continue;
-       if( !(normChi2 < 10) ) continue;
-       if( !(normTrkChi2 < 10) ) continue;
-       if( !(deltaZ < 1) ) continue;
-       v_idx_muon_tight.push_back(i);
-   }
-
    // loop over primary vertices and select good ones
    vector<int> v_idx_goodPV;
-   for(size_t i=0; i<PVIsFake->size(); i++)
+   for(size_t i=0; i<PVX->size(); i++)
    {
        double rho = sqrt(PVX->at(i)*PVX->at(i) + PVY->at(i)*PVY->at(i));
 
@@ -409,15 +421,34 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if( !(rho <= 2) ) continue;
        v_idx_goodPV.push_back(i);
    }
+   
+   // loop over muons and select muons passing tight muon ID
+   vector<int> v_idx_muon_tight;
+   for(size_t i=0; i<MuonPt->size(); i++)
+   {
+       double normChi2 = (MuonNdof->at(i) != 0 ? MuonChi2->at(i) / MuonNdof->at(i) : MuonChi2->at(i) * 1e6);
+       double normTrkChi2 = (MuonTrkNdof->at(i) != 0 ? MuonTrkChi2->at(i) / MuonTrkNdof->at(i) : MuonTrkChi2->at(i) * 1e6);
+       double deltaZ = (v_idx_goodPV.size()>0 ? fabs( MuonRefPtZ->at(i) - PVZ->at(v_idx_goodPV[0]) ) : fabs( MuonRefPtZ->at(i) - PVZ->at(0) ));
+
+       if( !MuonIsGlobal->at(i) ) continue;
+       if( !(MuonPt->at(i) > 5) ) continue;
+       if( !(fabs(MuonEta->at(i)) < 2.4) ) continue;
+       if( !(MuonNValidTrackerHits->at(i) > 10) ) continue;
+       if( !(MuonNValidPixelHits->at(i) > 1) ) continue;
+       if( !(MuonNLostTrackerHitsOut->at(i) < 3) ) continue;
+       if( !(MuonNValidMuonHits->at(i) > 0) ) continue;
+       if( !(MuonNMatches->at(i) > 1) ) continue;
+       if( !(normChi2 < 10) ) continue;
+       if( !(normTrkChi2 < 10) ) continue;
+       if( !(deltaZ < 1) ) continue;
+       v_idx_muon_tight.push_back(i);
+   }
 
    int passEEAnomJetFilter = 1;
    if( v_idx_pfjet_JetID.size() > 0 )
    {
      if( PFJetPt->at(v_idx_pfjet_JetID[0]) > 15000 ) passEEAnomJetFilter = 0;
    }
-
-   // cuts to be reset in MC when b-tag event reweighting is enabled
-   vector<string> cutNames; cutNames.push_back("nJets_btag"); cutNames.push_back("DijetMass"); cutNames.push_back("nMuons");
 
    int nBTaggedJets = 0;
    vector<double> scaleFactors;
@@ -429,11 +460,14 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    resetCuts();
    
    fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), pretagWeight );
-   fillVariableWithValue("PassBeamHaloFltTight", ( !(*passBeamHaloFilterTight) ? 1 : 0 ), pretagWeight ); // there is a bug in the ntuple maker (V00-00-01 and V00-00-02) so have to take the negative of the stored flag
+   fillVariableWithValue("PassBeamHaloFltTight", ( *passBeamHaloFilterTight ? 1 : 0 ), pretagWeight );
    fillVariableWithValue("PassTrackingFailure", ( *passTrackingFailure ? 1 : 0 ), pretagWeight );
    fillVariableWithValue("PassEcalMskCellDRFlt", ( *passEcalMaskedCellDRFilter ? 1 : 0 ), pretagWeight );
    fillVariableWithValue("PassCaloBndDRFlt", ( *passCaloBoundaryDRFilter ? 1 : 0 ), pretagWeight );
    fillVariableWithValue("PassEEAnomJetFilter", passEEAnomJetFilter, pretagWeight );
+
+   fillVariableWithValue("METoSumET_pretag", MET->front()/SumET->front(), pretagWeight );
+   fillVariableWithValue("METoSumET_pretag", getVariableValue("METoSumET_pretag"), pretagWeight );
 
    fillVariableWithValue("nJets_all", PFJetPt->size(), pretagWeight);
    fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), pretagWeight);
@@ -459,20 +493,56 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      v_j1j2 = v_j1 + v_j2;
      
      fillVariableWithValue( "DijetMassThreshold", v_j1j2.M(), pretagWeight );
-
-     TVector2 v2_j1, v2_j2;
-     v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
-     v2_j2.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[1]) );
      
-     fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ), pretagWeight );
+     fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v_j1.DeltaPhi(v_j2) ), pretagWeight );
      
      fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMassThreshold"), pretagWeight );
 
+     // jet, GenParticle, and muon 4-vectors
+     TLorentzVector v_j, v_gp, v_m;
+     
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
      {
        bool isHeavyFlavor = false;
-       if( !iEvent.isRealData() && ( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==4 || abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) ) { ++nHeavyFlavorJets; isHeavyFlavor = true; }
+       
+       // set jet 4-vector
+       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+       
+       if( !iEvent.isRealData() )
+       {
+         if( matchingType==0 && ( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==4 || abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) )
+         {
+           ++nHeavyFlavorJets;
+           isHeavyFlavor = true;
+         }
+         else if( matchingType!=0 )
+         {
+           double minDeltaR = 999.;
+           
+           // loop over GenParticles
+           for(size_t j=0; j<GenParticlePt->size(); ++j)
+           {
+             int pdgID = abs(GenParticlePdgId->at(j));
+
+             if( pdgID==511 || pdgID==521 || pdgID==531 || pdgID==541 || pdgID==5122 || pdgID==5132 || pdgID==5232 || pdgID==5332
+                 || pdgID==411 || pdgID==421 || pdgID==431 || pdgID==4122 || pdgID==4132 || pdgID==4232 || pdgID==4332 )
+             {
+               // set GenParticle 4-vector
+               v_gp.SetPtEtaPhiE(GenParticlePt->at(j),GenParticleEta->at(j),GenParticlePhi->at(j),GenParticleE->at(j));
+               double deltaR = v_j.DeltaR(v_gp);
+
+               if( deltaR < minDeltaR ) minDeltaR = deltaR;
+             }
+           }
+           
+           if( minDeltaR < matchingRadius )
+           {
+             ++nHeavyFlavorJets;
+             isHeavyFlavor = true;
+           }
+         }
+       }
       
        if( (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
            (btagger==2 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) ||
@@ -485,13 +555,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]),PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
        }
 
-       // jet and muon Lorentz vectors
-       TLorentzVector v_j, v_m;
-       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
-
        // loop over all tight muons and find those that are inside the jet (DeltaR<0.4)
        for(size_t j=0; j<v_idx_muon_tight.size(); ++j)
        {
+         // set muon 4-vector
          v_m.SetPtEtaPhiM(MuonPt->at(v_idx_muon_tight[j]),MuonEta->at(v_idx_muon_tight[j]),MuonPhi->at(v_idx_muon_tight[j]),0);
          if( v_j.DeltaR(v_m) < 0.4 ) ++nMuons;
        }
@@ -520,6 +587,16 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
      FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+     
+     if( nHeavyFlavorJets==2 )
+       FillUserTH1D("h1_J1J2HeavyFlavor", 1, 2.*pretagWeight );
+     else if( nHeavyFlavorJets==1 )
+     {
+       FillUserTH1D("h1_J1J2HeavyFlavor", 1, pretagWeight );
+       FillUserTH1D("h1_J1J2HeavyFlavor", 0, pretagWeight );
+     }
+     else
+       FillUserTH1D("h1_J1J2HeavyFlavor", 0, 2.*pretagWeight );
    }
    if(passedAllPreviousCuts("nMuons_pretag")) FillUserTH1D("h1_nMuons_vs_DijetMass_pretag", getVariableValue("DijetMass"), double(nMuons)*pretagWeight );
    if(passedAllPreviousCuts("nMuons")) FillUserTH1D("h1_nMuons_vs_DijetMass", getVariableValue("DijetMass"), double(nMuons)*tagWeight );
@@ -528,7 +605,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( passedCut("all") ) ret = true;
 
    // fill 3D histograms
-   if( doEventCategories && passedAllPreviousCuts("DijetMass_pretag") )
+   if( doEventBins && passedAllPreviousCuts("DijetMass_pretag") )
    {
      if( nMuons==0 && max(getVariableValue("absEtaJ1"),getHistoMin("absEtaJ2"))<1.2 )
      {
@@ -656,6 +733,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   // cuts to be reset in MC when b-tag event reweighting is enabled
+   vector<string> cutNames; cutNames.push_back("nJets_btag"); cutNames.push_back("DijetMass"); cutNames.push_back("nMuons");
+   
    if( v_idx_pfjet_JetID.size() >= 2 && !iEvent.isRealData() && doSFReweighting )
    {
      for( int nbtags=1; nbtags<=2; ++nbtags )
@@ -678,6 +758,63 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if( passedCut("all") ) ret = true;
      }
    }
+
+   // ##################### Event Printout - START #####################
+
+   // METoverSumET_gt_0.45 event printout
+   if( doEventPrintout && iEvent.isRealData() && passedAllPreviousCuts("DijetMass_pretag") && getVariableValue("METoSumET_pretag")>METoSumET_cut )
+   {
+     string category = "METoverSumET_gt_0.45";
+     
+     cout << category << ": ----------- START ------------" << endl;
+     cout << category << ": Run, lumi, event: "<< iEvent.id().run() << ", "
+                                               << iEvent.luminosityBlock() << ", "
+                                               << iEvent.id().event() << endl;
+
+     // loop over the two leading ak7 PFJets that pass jet ID requirements
+     for (size_t i=0; i<2; ++i)
+     {
+       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetPtRaw->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetEta->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetPhi->at(v_idx_pfjet_JetID[i]) << endl;
+     }
+     cout << category << ": |DeltaEtaJ1J2|: "<< getVariableValue("absDeltaEtaJ1J2") << endl;
+     cout << category << ": |DeltaPhiJ1J2|: "<< getVariableValue("absDeltaPhiJ1J2") << endl;
+     cout << category << ": MET: "<< MET->front() << endl;
+     cout << category << ": MET/SumET: "<< getVariableValue("METoSumET_pretag") << endl;
+     cout << category << ": Dijet Mass: "<< getVariableValue("DijetMass_pretag") << endl;
+     cout << category << ": ------------ END -------------" << endl;
+   }
+
+   // DeltaPhiJ1J2_lt_1.5 event printout
+   if( doEventPrintout && iEvent.isRealData() && passedAllPreviousCuts("DijetMass_pretag") && getVariableValue("absDeltaPhiJ1J2")<DeltaPhiJ1J2_cut )
+   {
+     string category = "DeltaPhiJ1J2_lt_1.5";
+    
+     cout << category << ": ----------- START ------------" << endl;
+     cout << category << ": Run, lumi, event: "<< iEvent.id().run() << ", "
+                                               << iEvent.luminosityBlock() << ", "
+                                               << iEvent.id().event() << endl;
+
+     // loop over the two leading ak7 PFJets that pass jet ID requirements
+     for (size_t i=0; i<2; ++i)
+     {
+       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetPtRaw->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetEta->at(v_idx_pfjet_JetID[i]) << ", "
+                                                                                  << PFJetPhi->at(v_idx_pfjet_JetID[i]) << endl;
+     }
+     cout << category << ": |DeltaEtaJ1J2|: "<< getVariableValue("absDeltaEtaJ1J2") << endl;
+     cout << category << ": |DeltaPhiJ1J2|: "<< getVariableValue("absDeltaPhiJ1J2") << endl;
+     cout << category << ": MET: "<< MET->front() << endl;
+     cout << category << ": MET/SumET: "<< getVariableValue("METoSumET_pretag") << endl;
+     cout << category << ": Dijet Mass: "<< getVariableValue("DijetMass_pretag") << endl;
+     cout << category << ": ------------ END -------------" << endl;
+   }
+
+   // ##################### Event Printout - END #######################
+   
    //############################# User's code ends here #################################
    //#####################################################################################
    
