@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.2 2011/11/10 02:22:32 ferencek Exp $
+// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.1 2011/11/14 02:28:47 ferencek Exp $
 //
 //
 
@@ -141,15 +141,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //#####################################################################################
    //########################### User's code starts here #################################
    
-   // grab necessary objects from the event   
-   edm::Handle<bool> passHBHENoiseFilter;
-   iEvent.getByLabel(edm::InputTag("EventSelection:PassHBHENoiseFilter"), passHBHENoiseFilter);
-
-   
+   // grab necessary objects from the event      
    edm::Handle<vector<double> > PFJetPt;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt);
-   edm::Handle<vector<double> > PFJetPtRaw;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PtRaw"), PFJetPtRaw);
    edm::Handle<vector<double> > PFJetEta;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
    edm::Handle<vector<double> > PFJetPhi;
@@ -158,14 +152,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
    edm::Handle<vector<int> > PFJetPassJetID;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
-   edm::Handle<vector<double> > PFJetSSVHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
-   edm::Handle<vector<double> > PFJetSSVHP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
-   edm::Handle<vector<double> > PFJetTCHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
-   edm::Handle<vector<int> > PFJetPartonFlavor;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
    
    // loop over PFJets
    vector<int> v_idx_pfjet_JetID;
@@ -178,8 +164,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
-     
-   fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ) );
 
    fillVariableWithValue("nJets_all", PFJetPt->size());
    fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
