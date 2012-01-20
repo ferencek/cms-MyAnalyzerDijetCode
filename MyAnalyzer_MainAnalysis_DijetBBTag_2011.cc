@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.8 2012/01/07 17:41:11 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.9 2012/01/17 18:42:11 ferencek Exp $
 //
 //
 
@@ -140,7 +140,7 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
 
-   CreateUserTH2D("h2_EtaJ2_vs_EtaJ1;#eta_1;#eta_2", getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"), getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"));
+   CreateUserTH2D("h2_EtaJ2_vs_EtaJ1;#eta_{1};#eta_{2}", getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"), getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"));
 
    int doEventBins = int(getPreCutValue1("doEventBins"));
    if( doEventBins )
@@ -525,7 +525,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        
        if( !iEvent.isRealData() )
        {
-         if( matchingType==0 && ( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==4 || abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) )
+         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
          {
            ++nHeavyFlavorJets;
            isHeavyFlavor = true;

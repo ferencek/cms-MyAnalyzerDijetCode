@@ -35,10 +35,10 @@ SSVHEM_WP                       1.74            -               -               
 # SSVHPT
 SSVHPT_WP                       2.0             -               -               -               -1
 # matching type (0: parton flavor, 1: b or c hadrons)
-matchingType                    1               -               -               -               -1
+matchingType                    0               -               -               -               -1
 matchingRadius                  0.4             -               -               -               -1
 # turn on/off creation of event bin histograms 
-doEventBins                     1               -               -               -               -1
+doEventBins                     0               -               -               -               -1
 # turn on/off event printout
 doEventPrintout                 0               -               -               -               -1
 METoSumET_cut                   0.45            -               -               -               -1
