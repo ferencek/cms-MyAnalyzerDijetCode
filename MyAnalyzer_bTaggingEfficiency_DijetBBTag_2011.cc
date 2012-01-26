@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.2 2012/01/10 00:43:38 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.1 2012/01/20 21:00:14 ferencek Exp $
 //
 //
 
@@ -121,8 +121,8 @@ MyAnalyzer::beginJob()
    CreateUserTH2D("h2_EtaJ2_vs_PtJ2_TCHPT;p_{T,2} [GeV];#eta_{2}", 6000, 0, 6000, 100, -5, 5);
    CreateUserTH2D("h2_EtaJ2_vs_PtJ2_SSVHPT;p_{T,2} [GeV];#eta_{2}", 6000, 0, 6000, 100, -5, 5);
    
-//    CreateUserTH2D("h2_maxEtaJ1J2_vs_DijetMass_num;Dijet Mass [GeV];max(|#eta_{1}|,|#eta_{2}|)", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"), getHistoNBins("absEtaJ1"), getHistoMin("absEtaJ1"), getHistoMax("absEtaJ1"));
-//    CreateUserTH2D("h2_maxEtaJ1J2_vs_DijetMass_denom;Dijet Mass [GeV];max(|#eta_{1}|,|#eta_{2}|)", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"), getHistoNBins("absEtaJ1"), getHistoMin("absEtaJ1"), getHistoMax("absEtaJ1"));
+   CreateUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_denom", 2, 0.5, 2.5, 2, 0.5, 2.5);
+   CreateUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_num", 2, 0.5, 2.5, 2, 0.5, 2.5);
    
    // initialize your variables here
    
@@ -234,6 +234,39 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
+   //    if( GenJetPt->size() >= 2 )
+//    {
+//      TLorentzVector v_j1j2, v_j1, v_j2;
+//      v_j1.SetPtEtaPhiE(GenJetPt->at(0),GenJetEta->at(0),GenJetPhi->at(0),GenJetE->at(0));
+//      v_j2.SetPtEtaPhiE(GenJetPt->at(1),GenJetEta->at(1),GenJetPhi->at(1),GenJetE->at(1));
+//
+//      // calculate M_j1j2
+//      v_j1j2 = v_j1 + v_j2;
+//      fillVariableWithValue( "DijetMassGen", v_j1j2.M() );
+//    }
+
+   vector<TLorentzVector> b_vectors;
+
+   for(size_t i=0; i<GenParticlePt->size(); i++)
+   {
+     TLorentzVector v_gen;
+     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 )
+     {
+       v_gen.SetPtEtaPhiE(GenParticlePt->at(i),GenParticleEta->at(i),GenParticlePhi->at(i),GenParticleE->at(i));
+       b_vectors.push_back(v_gen);
+       //cout << "PdgId=" << GenParticlePdgId->at(i) << " Status=" << GenParticleStatus->at(i) << endl;
+     }
+   }
+
+   fillVariableWithValue( "nStatus3_bQuarks", b_vectors.size() );
+
+   if( b_vectors.size()==2 )
+   {
+     TLorentzVector res_vector = b_vectors.at(0) + b_vectors.at(1);
+     fillVariableWithValue( "DijetMassGen", res_vector.M() );
+   }
+   
+
    fillVariableWithValue("nJets_all", PFJetPt->size());
    fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
 
@@ -309,7 +342,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //          if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
 //        }
 
-       if( isHeavyFlavor ) 
+       if( isHeavyFlavor && b_vectors.size()==2 ) 
        {
          if(i==0)
          {
@@ -330,48 +363,28 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }       
      }
    }
-
-//    if( GenJetPt->size() >= 2 )
-//    {
-//      TLorentzVector v_j1j2, v_j1, v_j2;
-//      v_j1.SetPtEtaPhiE(GenJetPt->at(0),GenJetEta->at(0),GenJetPhi->at(0),GenJetE->at(0));
-//      v_j2.SetPtEtaPhiE(GenJetPt->at(1),GenJetEta->at(1),GenJetPhi->at(1),GenJetE->at(1));
-// 
-//      // calculate M_j1j2
-//      v_j1j2 = v_j1 + v_j2;
-//      fillVariableWithValue( "DijetMassGen", v_j1j2.M() );
-//    }
-
-   vector<TLorentzVector> b_vectors;
-
-
-   for(size_t i=0; i<GenParticlePt->size(); i++)
-   {
-     TLorentzVector v_gen;
-     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 )
-     {
-       v_gen.SetPtEtaPhiE(GenParticlePt->at(i),GenParticleEta->at(i),GenParticlePhi->at(i),GenParticleE->at(i));
-       b_vectors.push_back(v_gen);
-       //cout << "PdgId=" << GenParticlePdgId->at(i) << " Status=" << GenParticleStatus->at(i) << endl;
-     }
-   }
-
-   if( b_vectors.size()==2 )
-   {
-     TLorentzVector res_vector = b_vectors.at(0) + b_vectors.at(1);
-     fillVariableWithValue( "DijetMassGen", res_vector.M() );
-   }
    
    // Evaluate cuts (but do not apply them)
    evaluateCuts();
 
-//    if(passedAllPreviousCuts("DijetMass"))
-//    {
-//      if( nHeavyFlavorJets==2 )
-//        FillUserTH2D("h2_maxEtaJ1J2_vs_DijetMass_denom", getVariableValue("DijetMass"), max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2")) );
-//      if( nHeavyFlavorJets==2 && nBTaggedJets==2 )
-//        FillUserTH2D("h2_maxEtaJ1J2_vs_DijetMass_num", getVariableValue("DijetMass"), max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2")) );
-//    }
+   if(passedAllPreviousCuts("DijetMass") && getVariableValue("DijetMass")>1000 && getVariableValue("DijetMass")<1500 && nHeavyFlavorJets==2)
+   {
+       FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_denom", 1, 1);
+       FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_denom", 1, 2);
+       FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_denom", 2, 1);
+       FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_denom", 2, 2);
+
+       if( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") )
+         FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_num", 1, 1);
+       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ||
+           ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) )
+       {
+         FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_num", 1, 2);
+         FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_num", 2, 1);
+       }
+       if( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") )
+         FillUserTH2D("h2_TCHEL_TCHPL_DijetMass1to1p5TeV_num", 2, 2);
+   }
    
    // select only those events that pass the full selection
    if( passedCut("all") ) ret = true;
