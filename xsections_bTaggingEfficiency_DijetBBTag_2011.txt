@@ -41,3 +41,8 @@
 /ZprimeToJJ_M-1200_TuneZ2_7TeV_pythia6/elhughes-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               -1
 /ZprimeToJJ_M-2000_TuneZ2_7TeV_pythia6/elhughes-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               -1
 /ZprimeToJJ_M-3500_TuneZ2_7TeV_pythia6/elhughes-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-02-5e3805279b9fc2f6611c5f41faa483b3/USER               -1
+/RSGravitonToJJ_M-500_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-04-241c22493176aa9267f8fc9c019aafd9/USER            -1
+/RSGravitonToJJ_M-700_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-04-241c22493176aa9267f8fc9c019aafd9/USER            -1
+/RSGravitonToJJ_M-1200_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-04-241c22493176aa9267f8fc9c019aafd9/USER           -1
+/RSGravitonToJJ_M-2000_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-04-241c22493176aa9267f8fc9c019aafd9/USER           -1
+/RSGravitonToJJ_M-3500_TuneZ2_7TeV_pythia6/ferencek-Summer11-PU_S4_START42_V11-v1_EDMTuple_V00-00-04-241c22493176aa9267f8fc9c019aafd9/USER           -1
