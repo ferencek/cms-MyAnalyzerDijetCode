@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.1 2012/01/20 21:00:14 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.2 2012/01/26 19:30:06 ferencek Exp $
 //
 //
 
@@ -227,9 +227,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        v_idx_pfjet_JetID.push_back(i);
    }
 
-//    int nBTaggedJets = 0;
-   int nHeavyFlavorJets = 0;
-//    int nBTaggedHeavyFlavorJets = 0;
    
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
@@ -245,7 +242,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //      fillVariableWithValue( "DijetMassGen", v_j1j2.M() );
 //    }
 
-   vector<TLorentzVector> b_vectors;
+   vector<TLorentzVector> bSt3_vectors;
+   vector<TLorentzVector> bSt2_vectors;
 
    for(size_t i=0; i<GenParticlePt->size(); i++)
    {
@@ -253,18 +251,25 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 )
      {
        v_gen.SetPtEtaPhiE(GenParticlePt->at(i),GenParticleEta->at(i),GenParticlePhi->at(i),GenParticleE->at(i));
-       b_vectors.push_back(v_gen);
+       bSt3_vectors.push_back(v_gen);
+       //cout << "PdgId=" << GenParticlePdgId->at(i) << " Status=" << GenParticleStatus->at(i) << endl;
+     }
+     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==2 )
+     {
+       v_gen.SetPtEtaPhiE(GenParticlePt->at(i),GenParticleEta->at(i),GenParticlePhi->at(i),GenParticleE->at(i));
+       bSt2_vectors.push_back(v_gen);
        //cout << "PdgId=" << GenParticlePdgId->at(i) << " Status=" << GenParticleStatus->at(i) << endl;
      }
    }
 
-   fillVariableWithValue( "nStatus3_bQuarks", b_vectors.size() );
+   fillVariableWithValue( "nStatus3_bQuarks", bSt3_vectors.size() );
+   fillVariableWithValue( "nStatus2_bQuarks", bSt2_vectors.size() );
 
-   if( b_vectors.size()==2 )
-   {
-     TLorentzVector res_vector = b_vectors.at(0) + b_vectors.at(1);
-     fillVariableWithValue( "DijetMassGen", res_vector.M() );
-   }
+//    if( bSt3_vectors.size()==2 )
+//    {
+//      TLorentzVector res_vector = bSt3_vectors.at(0) + bSt3_vectors.at(1);
+//      fillVariableWithValue( "DijetMassGen", res_vector.M() );
+//    }
    
 
    fillVariableWithValue("nJets_all", PFJetPt->size());
@@ -286,7 +291,18 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      fillVariableWithValue( "DijetMass", v_j1j2.M() );
+   }
+   
+   // Evaluate cuts (but do not apply them)
+   evaluateCuts();
+   
 
+//    int nBTaggedJets = 0;
+   int nHeavyFlavorJets = 0;
+//    int nBTaggedHeavyFlavorJets = 0;
+   
+   if( v_idx_pfjet_JetID.size() >= 2 )
+   {
      // jet and GenParticle 4-vectors
      TLorentzVector v_j, v_gp;
 
@@ -332,7 +348,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            }
          }
        }
-        
+
 //        if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
 //            (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
 //            (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
@@ -342,7 +358,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //          if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
 //        }
 
-       if( isHeavyFlavor && b_vectors.size()==2 ) 
+       if( isHeavyFlavor && passedAllPreviousCuts("nJets_all") )
        {
          if(i==0)
          {
@@ -360,12 +376,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
            if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
          }
-       }       
+       }
      }
    }
-   
-   // Evaluate cuts (but do not apply them)
-   evaluateCuts();
 
    if(passedAllPreviousCuts("DijetMass") && getVariableValue("DijetMass")>1000 && getVariableValue("DijetMass")<1500 && nHeavyFlavorJets==2)
    {

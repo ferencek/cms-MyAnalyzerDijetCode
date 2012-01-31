@@ -51,8 +51,9 @@ JES_Shift                       0               -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
-nStatus3_bQuarks      -inf          +inf                 -             -               0       16  -0.5 15.5
-DijetMassGen          -inf          +inf                 -             -               3       6000 0   6000
+nStatus3_bQuarks      -1            0                    -             -               0       16  -0.5 15.5
+nStatus2_bQuarks      1             +inf                 -             -               0       16  -0.5 15.5
+#DijetMassGen          -inf          +inf                 -             -               3       6000 0   6000
 nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
 nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
