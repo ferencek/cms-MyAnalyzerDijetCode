@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.9 2012/01/17 18:42:11 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.10 2012/01/20 23:37:07 ferencek Exp $
 //
 //
 
@@ -267,6 +267,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
    int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
    int btagger = int(getPreCutValue1("btagger"));
+   int useHFkFactor = int(getPreCutValue1("useHFkFactor"));
    int matchingType = int(getPreCutValue1("matchingType"));
    double matchingRadius = getPreCutValue1("matchingRadius");
    int doEventBins = int(getPreCutValue1("doEventBins"));
@@ -304,6 +305,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("GenParticles:Energy"), GenParticleE);
    edm::Handle<vector<int> > GenParticlePdgId;
    iEvent.getByLabel(edm::InputTag("GenParticles:PdgId"), GenParticlePdgId);
+   edm::Handle<vector<int> > GenParticleStatus;
+   iEvent.getByLabel(edm::InputTag("GenParticles:Status"), GenParticleStatus);
    
    edm::Handle<bool> passHBHENoiseFilter;
    iEvent.getByLabel(edm::InputTag("EventSelection:PassHBHENoiseFilter"), passHBHENoiseFilter);
@@ -389,9 +392,15 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // set the event weight
      eventWeight = LumiWeights.weight( npu );
    }
-   
-   double pretagWeight = eventWeight;
-   double tagWeight = pretagWeight;
+
+   int nStatus3_bQuarks = 0;
+   int nStatus2_bQuarks = 0;
+
+   for(size_t i=0; i<GenParticlePt->size(); i++)
+   {
+     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 ) nStatus3_bQuarks++;
+     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==2 ) nStatus2_bQuarks++;
+   }
 
    auto_ptr<std::vector<double> >  PFJetPt ( new std::vector<double>() );
    auto_ptr<std::vector<double> >  PFJetE  ( new std::vector<double>() );
@@ -459,6 +468,85 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nHeavyFlavorJets = 0;
    int nBTaggedHeavyFlavorJets = 0;
    int nMuons = 0;
+
+   if( v_idx_pfjet_JetID.size() >= 2 )
+   {
+     // jet, GenParticle, and muon 4-vectors
+     TLorentzVector v_j, v_gp, v_m;
+
+     // loop over two leading jets
+     for(size_t i=0; i<2; ++i)
+     {
+       bool isHeavyFlavor = false;
+
+       // set jet 4-vector
+       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+
+       if( !iEvent.isRealData() )
+       {
+         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
+         {
+           ++nHeavyFlavorJets;
+           isHeavyFlavor = true;
+         }
+         else if( matchingType!=0 )
+         {
+           double minDeltaR = 999.;
+
+           // loop over GenParticles
+           for(size_t j=0; j<GenParticlePt->size(); ++j)
+           {
+             int pdgID = abs(GenParticlePdgId->at(j));
+
+             if( pdgID==511 || pdgID==521 || pdgID==531 || pdgID==541 || pdgID==5122 || pdgID==5132 || pdgID==5232 || pdgID==5332
+                 || pdgID==411 || pdgID==421 || pdgID==431 || pdgID==4122 || pdgID==4132 || pdgID==4232 || pdgID==4332 )
+             {
+               // set GenParticle 4-vector
+               v_gp.SetPtEtaPhiE(GenParticlePt->at(j),GenParticleEta->at(j),GenParticlePhi->at(j),GenParticleE->at(j));
+               double deltaR = v_j.DeltaR(v_gp);
+
+               if( deltaR < minDeltaR ) minDeltaR = deltaR;
+             }
+           }
+
+           if( minDeltaR < matchingRadius )
+           {
+             ++nHeavyFlavorJets;
+             isHeavyFlavor = true;
+           }
+         }
+       }
+
+       if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
+           (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
+           (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
+           (btagger==3 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
+       {
+         ++nBTaggedJets;
+         if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
+         // if MC, get b-tag scale factor
+         if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(isHeavyFlavor,btagger));
+       }
+
+       // loop over all tight muons and find those that are inside the jet (DeltaR<0.4)
+       for(size_t j=0; j<v_idx_muon_tight.size(); ++j)
+       {
+         // set muon 4-vector
+         v_m.SetPtEtaPhiM(MuonPt->at(v_idx_muon_tight[j]),MuonEta->at(v_idx_muon_tight[j]),MuonPhi->at(v_idx_muon_tight[j]),0);
+         if( v_j.DeltaR(v_m) < 0.4 ) ++nMuons;
+       }
+     }
+   }
+
+   // apply heavy flavor k-factor
+   if( !iEvent.isRealData() && useHFkFactor )
+   {
+     if( nHeavyFlavorJets==0 ) eventWeight *= (1+(1-getPreCutValue1("HFkFactor"))*(getPreCutValue1("HFFraction")/(1-getPreCutValue1("HFFraction"))));
+     else                      eventWeight *= getPreCutValue1("HFkFactor");
+   }
+
+   double pretagWeight = eventWeight;
+   double tagWeight = pretagWeight;
    
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
@@ -511,72 +599,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      fillVariableWithValue( "DijetMass_pretag", getVariableValue("DijetMassThreshold"), pretagWeight );
 
      FillUserTH2D("h2_EtaJ2_vs_EtaJ1", getVariableValue("EtaJ1_pretag"), getVariableValue("EtaJ2_pretag"), pretagWeight);
-     
-     // jet, GenParticle, and muon 4-vectors
-     TLorentzVector v_j, v_gp, v_m;
-     
-     // loop over two leading jets
-     for(size_t i=0; i<2; ++i)
-     {
-       bool isHeavyFlavor = false;
-       
-       // set jet 4-vector
-       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
-       
-       if( !iEvent.isRealData() )
-       {
-         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
-         {
-           ++nHeavyFlavorJets;
-           isHeavyFlavor = true;
-         }
-         else if( matchingType!=0 )
-         {
-           double minDeltaR = 999.;
-           
-           // loop over GenParticles
-           for(size_t j=0; j<GenParticlePt->size(); ++j)
-           {
-             int pdgID = abs(GenParticlePdgId->at(j));
 
-             if( pdgID==511 || pdgID==521 || pdgID==531 || pdgID==541 || pdgID==5122 || pdgID==5132 || pdgID==5232 || pdgID==5332
-                 || pdgID==411 || pdgID==421 || pdgID==431 || pdgID==4122 || pdgID==4132 || pdgID==4232 || pdgID==4332 )
-             {
-               // set GenParticle 4-vector
-               v_gp.SetPtEtaPhiE(GenParticlePt->at(j),GenParticleEta->at(j),GenParticlePhi->at(j),GenParticleE->at(j));
-               double deltaR = v_j.DeltaR(v_gp);
-
-               if( deltaR < minDeltaR ) minDeltaR = deltaR;
-             }
-           }
-           
-           if( minDeltaR < matchingRadius )
-           {
-             ++nHeavyFlavorJets;
-             isHeavyFlavor = true;
-           }
-         }
-       }
-      
-       if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
-           (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
-           (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
-           (btagger==3 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
-       {
-         ++nBTaggedJets;
-         if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
-         // if MC, get b-tag scale factor
-         if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor(isHeavyFlavor,btagger));
-       }
-
-       // loop over all tight muons and find those that are inside the jet (DeltaR<0.4)
-       for(size_t j=0; j<v_idx_muon_tight.size(); ++j)
-       {
-         // set muon 4-vector
-         v_m.SetPtEtaPhiM(MuonPt->at(v_idx_muon_tight[j]),MuonEta->at(v_idx_muon_tight[j]),MuonPhi->at(v_idx_muon_tight[j]),0);
-         if( v_j.DeltaR(v_m) < 0.4 ) ++nMuons;
-       }
-     }
      
      fillVariableWithValue( "nMuons_pretag", nMuons, pretagWeight );
 
