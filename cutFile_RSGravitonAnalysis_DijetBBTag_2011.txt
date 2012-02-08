@@ -1,0 +1,71 @@
+#
+#############################     Example of file with list of cuts
+#
+#
+#------------------------ Preliminary cut variables and values (cut level -1) here -----------------------------
+# This first list of variable names and values are used to pass configurable values to the user code.
+# The user can retrieve the values associated to a variable name via a provided function call
+# [e.g. getPreCutValue1("eleFidRegion") and similarly for value2, value3 and value4]
+# The idea is that the user can use these values to define the list of objects (electrons, jets, etc.) used in
+# analysis. No cut is automatically evaluated on these variables and the cut level must be equal to -1.
+# Variable names must be unique.
+#
+#VariableName                   value1          value2          value3          value4          level
+#------------                   ------------    -------------   ------------    -------------   -----
+# select b-tagger (0: TCHEM, 1: SSVHEM, 2: TCHPT, 3: SSVHPT)
+#btagger                         0               -               -               -               -1
+# b-tag working points
+# TCHEL
+TCHEL_WP                        1.7             -               -               -               -1
+# TCHEM
+TCHEM_WP                        3.3             -               -               -               -1
+# TCHPL
+TCHPL_WP                        1.19            -               -               -               -1
+# TCHPT
+TCHPT_WP                        3.41            -               -               -               -1
+# SSVHEM
+SSVHEM_WP                       1.74            -               -               -               -1
+# SSVHPT
+SSVHPT_WP                       2.0             -               -               -               -1
+# matching type (0: parton flavor, 1: b or c hadrons)
+matchingType                    0               -               -               -               -1
+matchingRadius                  0.4             -               -               -               -1
+# Shift in jet energy scale (in units of the JES uncertainty)
+JES_Shift                       0               -               -               -               -1
+#
+#
+#--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
+# The cut variable names, cut boundaries and histogram binnings are provided here by the user.
+# Inside the event loop, the user has to fill each variable with its value using
+# a provided function call [e.g. fillVariableWithValue("nEleFinal", number_of_electrons)]
+# The variable names in the user code has to match the names provided here.
+# Variable names must be unique.
+# The cut will be declared "passed" if
+#    ( minValue1 < VariableValue <= maxValue1 )
+# in case only the first range (minValue1, maxValue1) is provided.
+# Otherwise, the cut will be declared "passed" if
+#    ( minValue1 < VariableValue <= maxValue1 )  OR  ( minValue2 < VariableValue <= maxValue2 )
+# in case even the second range (minValue2, maxValue2) is provided.
+# The level of the cut (0,1,2 ... n) is provided by the user and can be used in the code to easily determine if
+# groups of same-level cuts have passed or failed.
+#
+#VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
+#------------         ------------  -------------        ------------  -------------   -----   ----------------
+nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
+nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
+absEtaJ1              -inf          2.5                  -             -               2       50   0   5
+absEtaJ2              -inf          2.5                  -             -               2       50   0   5
+absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
+DijetMass             -inf          +inf                 -             -               3       6000 0   6000
+nSt3_q_fromRSG        1             2                    -             -               4       16  -0.5 15.5
+DijetMass_qqbar       -inf          +inf                 -             -               4       6000 0   6000
+nSt3_b_fromRSG        1             2                    -             -               5       16  -0.5 15.5
+DijetMass_bbbar       -inf          +inf                 -             -               5       6000 0   6000
+#
+#
+#
+#---------------------------------------- Cut Optimizer --------------------------------------------------
+#VariableName                   must be OPT   > or <    RangeMin        RangeMax        unused
+#------------                   -----------   ------    ------------    -------------   ------
+#pTMu1                             OPT           >         20              65             1
+#pTJet1                            OPT           >         20              65             1
