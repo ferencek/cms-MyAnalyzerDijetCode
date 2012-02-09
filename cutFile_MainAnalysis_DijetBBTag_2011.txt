@@ -17,21 +17,25 @@ doPUReweighting                 1               -               -               
 # Run2011 era used for PU reweighting (0: Run2011A+Run2011B, 1: Run2011A, 2: Run2011B)
 puReweightingEra                0               -               -               -               -1
 # turn on/off b-tag scale factor reweighting
-doSFReweighting                 0               -               -               -               -1
+doSFReweighting                 1               -               -               -               -1
 # scale factors
-TCHPT_SFh                       0.764           -               -               -               -1
-TCHPT_SFl                       0.979           -               -               -               -1
-SSVHPT_SFh                      0.75            -               -               -               -1
-SSVHPT_SFl                      0.916           -               -               -               -1
+TCHEL_SFb                       1.01            -               -               -               -1
+TCHEL_SFl                       1.05            -               -               -               -1
+TCHPT_SFb                       0.93            -               -               -               -1
+TCHPT_SFl                       1.2             -               -               -               -1
+SSVHPT_SFb                      0.95            -               -               -               -1
+SSVHPT_SFl                      0.98            -               -               -               -1
 # GSP heavy flavor fraction
 HFFraction                      0.056567        -               -               -               -1
 # turn on/off GSP heavy flavor k-factor
-useHFkFactor                    0               -               -               -               -1
+useHFkFactor                    1               -               -               -               -1
 # GSP heavy flavor k-factor
-HFkFactor                       1.856           -               -               -               -1
-# select b-tagger (0: TCHEM, 1: SSVHEM, 2: TCHPT, 3: SSVHPT)
-btagger                         3               -               -               -               -1
+HFkFactor                       1.50            -               -               -               -1
+# select b-tagger (0: TCHEL, 1: TCHEM, 2: SSVHEM, 3: TCHPT, 4: SSVHPT)
+btagger                         4               -               -               -               -1
 # b-tag working points
+# TCHEL
+TCHEL_WP                        1.7             -               -               -               -1
 # TCHEM
 TCHEM_WP                        3.3             -               -               -               -1
 # TCHPT
@@ -97,7 +101,7 @@ PtJ2_pretag           -inf          +inf                 -             -        
 DijetMass_pretag      -inf          +inf                 -             -               5       6000 0   6000
 nMuons_pretag         -inf          +inf                 -             -               5       16  -0.5 15.5
 METoSumET_pretag      -inf          +inf                 -             -               5       100  0   1
-nJets_btag            0             1                    -             -               6       16  -0.5 15.5
+nJets_btag            1             2                    -             -               6       16  -0.5 15.5
 nGoodVertices         -inf          +inf                 -             -               6       41  -0.5 40.5
 PhiJ1                 -inf          +inf                 -             -               6       200 -3.15 3.15
 PhiJ2                 -inf          +inf                 -             -               6       200 -3.15 3.15
