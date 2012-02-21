@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.1 2012/02/08 01:32:19 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.2 2012/02/17 04:18:20 ferencek Exp $
 //
 //
 
@@ -44,6 +44,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // ROOT
+#include <TF1.h>
 #include <TLorentzVector.h>
 
 
@@ -52,6 +53,31 @@ using namespace std;
 //
 // class declaration
 //
+
+class BTagScaleFactorCalculator
+{
+ public:
+   BTagScaleFactorCalculator();
+   void init(const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
+   double scaleFactor(const int partonFlavor, const int btagger);
+   double scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger);
+   double scaleFactorBC_TCHEL(const double jetPt, const double jetEta);
+   double scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta);
+
+ private:
+   double TCHEL_SFb_;
+   double TCHEL_SFl_;
+   double TCHPT_SFb_;
+   double TCHPT_SFl_;
+   double SSVHPT_SFb_;
+   double SSVHPT_SFl_;
+   TF1 *TCHEL_SFb_0to2p4;
+   TF1 *TCHEL_SFl_0to2p4;
+   TF1 *TCHEL_SFl_0to0p5;
+   TF1 *TCHEL_SFl_0p5to1p0;
+   TF1 *TCHEL_SFl_1p0to1p5;
+   TF1 *TCHEL_SFl_1p5to2p4;
+};
 
 class MyAnalyzer : public BaseClass, public edm::EDFilter {
    public:
@@ -70,8 +96,11 @@ class MyAnalyzer : public BaseClass, public edm::EDFilter {
       virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
+      double bTagEventWeight(const vector<double>& SFsForBTaggedJets, const unsigned int nBTags);
+
       // ----------member data ---------------------------
       edm::LumiReWeighting LumiWeights;
+      BTagScaleFactorCalculator sfCalculator;
 };
 
 //
@@ -82,7 +111,7 @@ MyAnalyzer::MyAnalyzer(const edm::ParameterSet& iConfig) :
   BaseClass(iConfig)
 {
    //now do whatever initialization is needed
-
+   sfCalculator.init(getPreCutValue1("TCHEL_SFb"),getPreCutValue1("TCHEL_SFl"),getPreCutValue1("TCHPT_SFb"),getPreCutValue1("TCHPT_SFl"),getPreCutValue1("SSVHPT_SFb"),getPreCutValue1("SSVHPT_SFl"));
 }
 
 MyAnalyzer::~MyAnalyzer()
@@ -111,9 +140,12 @@ MyAnalyzer::beginJob()
    //########################### User's code starts here #################################/
    
    // book your histograms here
-   CreateUserTH1D("h1_DijetMass_bbbar_0tag", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_DijetMass_bbbar_1tag", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_DijetMass_bbbar_2tag", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_bbbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_bbbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_bbbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_nonbbbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_nonbbbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_nonbbbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    
    // initialize your variables here
 
@@ -165,6 +197,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //########################### User's code starts here #################################
 
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
+   int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
+   int useFixedSFs = int(getPreCutValue1("useFixedSFs"));
    double resonanceMass = getPreCutValue1("resonanceMass");
    int btagger = int(getPreCutValue1("btagger"));
    int matchingType = int(getPreCutValue1("matchingType"));
@@ -186,6 +220,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<vector<int> > GenParticleMotherIndex;
    iEvent.getByLabel(edm::InputTag("GenParticles:MotherIndex"), GenParticleMotherIndex);
 
+   edm::Handle<bool> passHBHENoiseFilter;
+   iEvent.getByLabel(edm::InputTag("EventSelection:PassHBHENoiseFilter"), passHBHENoiseFilter);
+   
    edm::Handle<vector<unsigned int> > NPU;
    iEvent.getByLabel(edm::InputTag("GenEventInfo:PileUpNumberOfInteractions"), NPU);
    edm::Handle<vector<int> > BX;
@@ -201,6 +238,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("Vertices:Z"), PVZ);
    edm::Handle<vector<double> > PVNDF;
    iEvent.getByLabel(edm::InputTag("Vertices:NDF"), PVNDF);
+
+   edm::Handle<vector<double> > MET;
+   iEvent.getByLabel(edm::InputTag("PFMET:Mag"), MET);
+   edm::Handle<vector<double> > SumET;
+   iEvent.getByLabel(edm::InputTag("PFMET:SumET"), SumET);
    
    edm::Handle<vector<double> > PFJetPt_;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt_);
@@ -276,6 +318,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    int nBTaggedJets = 0;
+   vector<double> scaleFactors;
    int nHeavyFlavorJets = 0;
    int nBTaggedHeavyFlavorJets = 0;
 
@@ -287,19 +330,20 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
      {
-       bool isHeavyFlavor = false;
+       int partonFlavor = 0;
 
        // set jet 4-vector
        v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
 
        if( !iEvent.isRealData() )
        {
-         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
+         if( matchingType==0 ) // parton-based matching
          {
-           ++nHeavyFlavorJets;
-           isHeavyFlavor = true;
+           partonFlavor = abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]));
+
+           if( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) ++nHeavyFlavorJets;
          }
-         else if( matchingType!=0 )
+         else if( matchingType!=0 ) // hadron-based matching
          {
            double minDeltaR = 999.;
 
@@ -322,7 +366,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if( minDeltaR < matchingRadius )
            {
              ++nHeavyFlavorJets;
-             isHeavyFlavor = true;
+             partonFlavor = 5; // This is not necessarily true since hadron-based matching cannot distinguish b- and c-jets. However, since the same scale factors are applied to b- and c-jets, this is a reasonable default.
            }
          }
        }
@@ -334,7 +378,13 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            (btagger==4 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
        {
          ++nBTaggedJets;
-         if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
+         if( partonFlavor==5 ) ++nBTaggedHeavyFlavorJets;
+         // if MC, get b-tag scale factor
+         if( !iEvent.isRealData() )
+         {
+           if( useFixedSFs ) scaleFactors.push_back(sfCalculator.scaleFactor(partonFlavor,btagger));
+           else scaleFactors.push_back(sfCalculator.scaleFactor(partonFlavor,PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
+         }
        }
      }
    }
@@ -359,7 +409,12 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG, eventWeight );
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG, eventWeight );
 
+   fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), eventWeight );
+   
    fillVariableWithValue("nGoodVertices", v_idx_goodPV.size(), eventWeight );
+
+   fillVariableWithValue("METoSumET", MET->front()/SumET->front(), eventWeight );
+   fillVariableWithValue("METoSumET_bbbar", getVariableValue("METoSumET"), eventWeight );
    
    fillVariableWithValue("nJets_all", PFJetPt->size(), eventWeight );
    fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), eventWeight );
@@ -367,16 +422,34 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( v_idx_pfjet_JetID.size() >= 1 )
    {
      fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ), eventWeight );
+     fillVariableWithValue( "PhiJ1", PFJetPhi->at(v_idx_pfjet_JetID[0]), eventWeight );
+     fillVariableWithValue( "EtaJ1", PFJetEta->at(v_idx_pfjet_JetID[0]), eventWeight );
+     fillVariableWithValue( "PtJ1", PFJetPt->at(v_idx_pfjet_JetID[0]), eventWeight );
+     fillVariableWithValue( "PhiJ1_bbbar", getVariableValue("PhiJ1"), eventWeight );
+     fillVariableWithValue( "EtaJ1_bbbar", getVariableValue("EtaJ1"), eventWeight );
+     fillVariableWithValue( "PtJ1_bbbar", getVariableValue("PtJ1"), eventWeight );
    }
    if( v_idx_pfjet_JetID.size() >= 2 )
    {
      fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ), eventWeight );
+     fillVariableWithValue( "PhiJ2", PFJetPhi->at(v_idx_pfjet_JetID[1]), eventWeight );
+     fillVariableWithValue( "EtaJ2", PFJetEta->at(v_idx_pfjet_JetID[1]), eventWeight );
+     fillVariableWithValue( "PtJ2", PFJetPt->at(v_idx_pfjet_JetID[1]), eventWeight );
+     fillVariableWithValue( "PhiJ2_bbbar", getVariableValue("PhiJ2"), eventWeight );
+     fillVariableWithValue( "EtaJ2_bbbar", getVariableValue("EtaJ2"), eventWeight );
+     fillVariableWithValue( "PtJ2_bbbar", getVariableValue("PtJ2"), eventWeight );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
      v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
      v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
      // calculate |DeltaEta(j1,j2)|
      fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ), eventWeight );
+     fillVariableWithValue( "DeltaEtaJ1J2", getVariableValue("absDeltaEtaJ1J2"), eventWeight );
+     fillVariableWithValue( "DeltaEtaJ1J2_bbbar", getVariableValue("absDeltaEtaJ1J2"), eventWeight );
+
+     fillVariableWithValue( "DeltaPhiJ1J2", fabs( v_j1.DeltaPhi(v_j2) ), eventWeight );
+     fillVariableWithValue( "DeltaPhiJ1J2_bbbar", getVariableValue("DeltaPhiJ1J2"), eventWeight );
+     
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      fillVariableWithValue( "DijetMass", v_j1j2.M(), eventWeight );
@@ -389,14 +462,40 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Evaluate cuts (but do not apply them)
    evaluateCuts();
 
-
-   if( passedAllPreviousCuts("DijetMass_bbbar") )
+   if( passedAllPreviousCuts("DijetMass") )
    {
-     if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_bbbar_0tag", getVariableValue("DijetMass"), eventWeight );
-     if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_bbbar_1tag", getVariableValue("DijetMass"), eventWeight );
-     if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_bbbar_2tag", getVariableValue("DijetMass"), eventWeight );
+     if( nSt3_b_fromRSG==2 )
+     {
+       if( doSFReweighting )
+       {
+         FillUserTH1D("h1_DijetMass_bbbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
+         FillUserTH1D("h1_DijetMass_bbbar_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
+         FillUserTH1D("h1_DijetMass_bbbar_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
+       }
+       else
+       {
+         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_bbbar_0tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_bbbar_1tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_bbbar_2tag", getVariableValue("DijetMass"), eventWeight );
+       }
+     }
+     else
+     {
+       if( doSFReweighting )
+       {
+         FillUserTH1D("h1_DijetMass_nonbbbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
+         FillUserTH1D("h1_DijetMass_nonbbbar_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
+         FillUserTH1D("h1_DijetMass_nonbbbar_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
+       }
+       else
+       {
+         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_nonbbbar_0tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_nonbbbar_1tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_nonbbbar_2tag", getVariableValue("DijetMass"), eventWeight );
+       }
+     }
    }
-   
+
    // select only those events that pass the full selection
    if( passedCut("all") ) ret = true;
 
@@ -453,6 +552,182 @@ MyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
+}
+
+// ------------ method that calculates the event weight based on the number of b-tagged jets in MC and the expected number of b-tags among the two leading jets  ------------
+double
+MyAnalyzer::bTagEventWeight(const vector<double>& SFsForBTaggedJets, const unsigned int nBTags)
+{
+  if( SFsForBTaggedJets.size() > 2 )
+  {
+    edm::LogError("MyAnalyzer::bTagEventWeight") << "Only two leading jets are considered. Hence, the number of b-tagged jets cannot exceed 2.";
+    exit(1);
+  }
+  if( nBTags > 2 )
+  {
+    edm::LogError("MyAnalyzer::bTagEventWeight") << "Only two leading jets are considered. Hence, the number of b-tags cannot exceed 2.";
+    exit(1);
+  }
+  /*
+    ##################################################################
+    Event weight matrix:
+    ------------------------------------------------------------------
+    nBTags\b-tagged jets  |    0        1             2
+    ------------------------------------------------------------------
+      0                   |    1      1-SF      (1-SF1)(1-SF2)
+                          |
+      1                   |    0       SF    SF1(1-SF2)+(1-SF1)SF2
+                          |
+      2                   |    0        0           SF1SF2
+    ##################################################################
+  */
+
+  if( nBTags > SFsForBTaggedJets.size() ) return 0;
+
+  if( nBTags==0 && SFsForBTaggedJets.size()==0 ) return 1;
+
+  double weight = 0;
+
+  if( SFsForBTaggedJets.size()==1 )
+  {
+    double SF = SFsForBTaggedJets.at(0);
+
+    for( unsigned int i=0; i<=1; ++i )
+    {
+      if( i != nBTags ) continue;
+
+      weight += pow(SF,i)*pow(1-SF,1-i);
+    }
+  }
+  else if( SFsForBTaggedJets.size()==2 )
+  {
+    double SF1 = SFsForBTaggedJets.at(0);
+    double SF2 = SFsForBTaggedJets.at(1);
+
+    for( unsigned int i=0; i<=1; ++i )
+    {
+      for( unsigned int j=0; j<=1; ++j )
+      {
+        if( (i+j) != nBTags ) continue;
+
+        weight += pow(SF1,i)*pow(1-SF1,1-i)*pow(SF2,j)*pow(1-SF2,1-j);
+      }
+    }
+  }
+  return weight;
+}
+
+// BTagScaleFactorCalculator constructor
+BTagScaleFactorCalculator::BTagScaleFactorCalculator()
+{
+  TCHEL_SFb_ = 1.;
+  TCHEL_SFl_ = 1.;
+  TCHPT_SFb_ = 1.;
+  TCHPT_SFl_ = 1.;
+  SSVHPT_SFb_ = 1.;
+  SSVHPT_SFl_ = 1.;
+  TCHEL_SFb_0to2p4 = new TF1("TCHEL_SFb_0to2p4","0.603913*((1.+(0.286361*x))/(1.+(0.170474*x)))", 30.,670.);
+  TCHEL_SFl_0to2p4 = new TF1("TCHEL_SFl_0to2p4","(1.10649*((1+(-9.00297e-05*x))+(2.32185e-07*(x*x))))+(-4.04925e-10*(x*(x*(x/(1+(-0.00051036*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5 = new TF1("TCHEL_SFl_0to0p5","(1.13615*((1+(-0.00119852*x))+(1.17888e-05*(x*x))))+(-9.8581e-08*(x*(x*(x/(1+(0.00689317*x))))))", 20.,670.);
+  TCHEL_SFl_0p5to1p0 = new TF1("TCHEL_SFl_0p5to1p0","(1.13277*((1+(-0.00084146*x))+(3.80313e-06*(x*x))))+(-8.75061e-09*(x*(x*(x/(1+(0.00118695*x))))))", 20.,670.);
+  TCHEL_SFl_1p0to1p5 = new TF1("TCHEL_SFl_1p0to1p5","(1.17163*((1+(-0.000828475*x))+(3.0769e-06*(x*x))))+(-4.692e-09*(x*(x*(x/(1+(0.000337759*x))))))", 20.,670.);
+  TCHEL_SFl_1p5to2p4 = new TF1("TCHEL_SFl_1p5to2p4","(1.14554*((1+(-0.000128043*x))+(4.10899e-07*(x*x))))+(-2.07565e-10*(x*(x*(x/(1+(-0.00118618*x))))))", 20.,670.);
+}
+
+// ------------ method that initializes the BTagScaleFactorCalculator class  ------------
+void
+BTagScaleFactorCalculator::init(const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl)
+{
+  TCHEL_SFb_ = TCHEL_SFb;
+  TCHEL_SFl_ = TCHEL_SFl;
+  TCHPT_SFb_ = TCHPT_SFb;
+  TCHPT_SFl_ = TCHPT_SFl;
+  SSVHPT_SFb_ = SSVHPT_SFb;
+  SSVHPT_SFl_ = SSVHPT_SFl;
+}
+
+// ------------ method that returns the b-tag efficiency scale factor  ------------
+double
+BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const int btagger)
+{
+  if( partonFlavor==5 || partonFlavor==4 )
+  {
+    if(btagger==0)      return TCHEL_SFb_;
+    else if(btagger==3) return TCHPT_SFb_;
+    else if(btagger==4) return SSVHPT_SFb_;
+    else                return 1.;
+  }
+  else
+  {
+    if(btagger==0)      return TCHEL_SFl_;
+    else if(btagger==3) return TCHPT_SFl_;
+    else if(btagger==4) return SSVHPT_SFl_;
+    else                return 1.;
+  }
+}
+
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor  ------------
+double
+BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger)
+{
+  if( partonFlavor==5 || partonFlavor==4 )
+  {
+    if(btagger==0)  return scaleFactorBC_TCHEL(jetPt,jetEta);
+    else            return 1.;
+  }
+  else
+  {
+    if(btagger==0)  return scaleFactorUDSG_TCHEL(jetPt,jetEta);
+    else            return 1.;
+  }
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b- and c-jets and TCHEL tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorBC_TCHEL(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return TCHEL_SFb_0to2p4->Eval(Pt);
+
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for light flavor jets and TCHEL tagger ------------
+double
+BTagScaleFactorCalculator::scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta)
+{
+  double SF = 1.;
+  double Pt = jetPt;
+  double eta = fabs(jetEta);
+  // for scale factor extrapolation
+  if(Pt<20) Pt = 20;
+
+  if(eta<0.5)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_0to0p5->Eval(Pt);
+  }
+  else if(eta>=0.5 && eta<1.)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_0p5to1p0->Eval(Pt);
+  }
+  else if(eta>=1. && eta<1.5)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_1p0to1p5->Eval(Pt);
+  }
+  else
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_1p5to2p4->Eval(Pt);
+  }
+
+  return SF;
 }
 
 

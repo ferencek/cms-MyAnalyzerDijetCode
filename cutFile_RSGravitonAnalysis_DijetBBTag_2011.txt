@@ -16,8 +16,19 @@
 doPUReweighting                 1               -               -               -               -1
 # Run2011 era used for PU reweighting (0: Run2011A+Run2011B, 1: Run2011A, 2: Run2011B)
 puReweightingEra                0               -               -               -               -1
+# turn on/off b-tag scale factor reweighting
+doSFReweighting                 0               -               -               -               -1
+# turn on/off the use of fixed scale factors
+useFixedSFs                     0               -               -               -               -1
+# fixed scale factors
+TCHEL_SFb                       1.01            -               -               -               -1
+TCHEL_SFl                       1.05            -               -               -               -1
+TCHPT_SFb                       0.93            -               -               -               -1
+TCHPT_SFl                       1.2             -               -               -               -1
+SSVHPT_SFb                      0.95            -               -               -               -1
+SSVHPT_SFl                      0.98            -               -               -               -1
 # select b-tagger (0: TCHEL, 1: TCHEM, 2: SSVHEM, 3: TCHPT, 4: SSVHPT)
-btagger                         4               -               -               -               -1
+btagger                         0               -               -               -               -1
 # b-tag working points
 # TCHEL
 TCHEL_WP                        1.7             -               -               -               -1
@@ -62,13 +73,32 @@ nJets_JetID           1             +inf                 -             -        
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
 absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
-DijetMass             -inf          +inf                 -             -               3       6000 0   6000
-nGoodVertices         -inf          +inf                 -             -               3       41  -0.5 40.5
-nSt3_q_fromRSG        1             2                    -             -               4       16  -0.5 15.5
-DijetMass_qqbar       -inf          +inf                 -             -               4       6000 0   6000
-nSt3_b_fromRSG        1             2                    -             -               5       16  -0.5 15.5
-DijetMass_bbbar       -inf          +inf                 -             -               5       6000 0   6000
-x_bbbar               -inf          +inf                 -             -               5       50   0.3 1.3
+PassHBHENoiseFilter   0             1                    -             -               4       2   -0.5 1.5
+PhiJ1                 -inf          +inf                 -             -               4       200 -3.15 3.15
+PhiJ2                 -inf          +inf                 -             -               4       200 -3.15 3.15
+DeltaPhiJ1J2          -inf          +inf                 -             -               4       100  0   3.15
+EtaJ1                 -inf          +inf                 -             -               4       100 -5   5
+EtaJ2                 -inf          +inf                 -             -               4       100 -5   5
+DeltaEtaJ1J2          -inf          +inf                 -             -               4       40   0   2
+PtJ1                  -inf          +inf                 -             -               4       6000 0   6000
+PtJ2                  -inf          +inf                 -             -               4       6000 0   6000
+METoSumET             -inf          +inf                 -             -               4       100  0   1
+DijetMass             -inf          +inf                 -             -               4       6000 0   6000
+nGoodVertices         -inf          +inf                 -             -               4       41  -0.5 40.5
+nSt3_q_fromRSG        1             2                    -             -               5       16  -0.5 15.5
+DijetMass_qqbar       -inf          +inf                 -             -               5       6000 0   6000
+nSt3_b_fromRSG        1             2                    -             -               6       16  -0.5 15.5
+PhiJ1_bbbar           -inf          +inf                 -             -               6       200 -3.15 3.15
+PhiJ2_bbbar           -inf          +inf                 -             -               6       200 -3.15 3.15
+DeltaPhiJ1J2_bbbar    -inf          +inf                 -             -               6       100  0   3.15
+EtaJ1_bbbar           -inf          +inf                 -             -               6       100 -5   5
+EtaJ2_bbbar           -inf          +inf                 -             -               6       100 -5   5
+DeltaEtaJ1J2_bbbar    -inf          +inf                 -             -               6       40   0   2
+PtJ1_bbbar            -inf          +inf                 -             -               6       6000 0   6000
+PtJ2_bbbar            -inf          +inf                 -             -               6       6000 0   6000
+METoSumET_bbbar       -inf          +inf                 -             -               6       100  0   1
+DijetMass_bbbar       -inf          +inf                 -             -               6       6000 0   6000
+x_bbbar               -inf          +inf                 -             -               6       50   0.3 1.3
 #
 #
 #

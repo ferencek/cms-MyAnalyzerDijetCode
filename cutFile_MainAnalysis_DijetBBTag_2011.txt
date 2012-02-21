@@ -18,21 +18,23 @@ doPUReweighting                 1               -               -               
 puReweightingEra                0               -               -               -               -1
 # turn on/off b-tag scale factor reweighting
 doSFReweighting                 1               -               -               -               -1
-# scale factors
+# turn on/off the use of fixed scale factors
+useFixedSFs                     0               -               -               -               -1
+# fixed scale factors
 TCHEL_SFb                       1.01            -               -               -               -1
 TCHEL_SFl                       1.05            -               -               -               -1
 TCHPT_SFb                       0.93            -               -               -               -1
 TCHPT_SFl                       1.2             -               -               -               -1
 SSVHPT_SFb                      0.95            -               -               -               -1
 SSVHPT_SFl                      0.98            -               -               -               -1
-# GSP heavy flavor fraction
-HFFraction                      0.056567        -               -               -               -1
-# turn on/off GSP heavy flavor k-factor
-useHFkFactor                    1               -               -               -               -1
-# GSP heavy flavor k-factor
+# turn on/off heavy flavor k-factor
+useHFkFactor                    0               -               -               -               -1
+# heavy flavor k-factor
 HFkFactor                       1.50            -               -               -               -1
+# heavy flavor fraction
+HFFraction                      0.056567        -               -               -               -1
 # select b-tagger (0: TCHEL, 1: TCHEM, 2: SSVHEM, 3: TCHPT, 4: SSVHPT)
-btagger                         4               -               -               -               -1
+btagger                         0               -               -               -               -1
 # b-tag working points
 # TCHEL
 TCHEL_WP                        1.7             -               -               -               -1

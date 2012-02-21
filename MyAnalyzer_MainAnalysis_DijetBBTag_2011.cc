@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.11 2012/02/03 00:11:45 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.12 2012/02/09 18:50:30 ferencek Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // ROOT
+#include <TF1.h>
 #include <TLorentzVector.h>
 
 
@@ -61,7 +62,10 @@ class BTagScaleFactorCalculator
  public:
    BTagScaleFactorCalculator();
    void init(const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
-   double scaleFactor(const bool isHeavyFlavor, const int btagger);
+   double scaleFactor(const int partonFlavor, const int btagger);
+   double scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger);
+   double scaleFactorBC_TCHEL(const double jetPt, const double jetEta);
+   double scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta);
 
  private:
    double TCHEL_SFb_;
@@ -70,6 +74,12 @@ class BTagScaleFactorCalculator
    double TCHPT_SFl_;
    double SSVHPT_SFb_;
    double SSVHPT_SFl_;
+   TF1 *TCHEL_SFb_0to2p4;
+   TF1 *TCHEL_SFl_0to2p4;
+   TF1 *TCHEL_SFl_0to0p5;
+   TF1 *TCHEL_SFl_0p5to1p0;
+   TF1 *TCHEL_SFl_1p0to1p5;
+   TF1 *TCHEL_SFl_1p5to2p4;
 };
 
 class MyAnalyzer : public BaseClass, public edm::EDFilter {
@@ -141,7 +151,7 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_J1J2HeavyFlavor;Heavy Flavor;Entries", 2, -0.5, 1.5);
    CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-
+   
    CreateUserTH2D("h2_EtaJ2_vs_EtaJ1;#eta_{1};#eta_{2}", getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"), getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"));
 
    int doEventBins = int(getPreCutValue1("doEventBins"));
@@ -329,6 +339,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
    int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
+   int useFixedSFs = int(getPreCutValue1("useFixedSFs"));
    int btagger = int(getPreCutValue1("btagger"));
    int useHFkFactor = int(getPreCutValue1("useHFkFactor"));
    int matchingType = int(getPreCutValue1("matchingType"));
@@ -540,27 +551,20 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
      {
-       bool isHeavyFlavor = false;
-       bool isCJet = false;
+       int partonFlavor = 0;
 
        // set jet 4-vector
        v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
 
        if( !iEvent.isRealData() )
        {
-         if( matchingType==0 )
+         if( matchingType==0 ) // parton-based matching
          {
-           if( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
-           {
-             ++nHeavyFlavorJets;
-             isHeavyFlavor = true;
-           }
-           if( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==4 )
-           {
-             isCJet = true;
-           }
+           partonFlavor = abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]));
+          
+           if( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) ++nHeavyFlavorJets;
          }
-         else if( matchingType!=0 )
+         else if( matchingType!=0 ) // hadron-based matching
          {
            double minDeltaR = 999.;
 
@@ -583,7 +587,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            if( minDeltaR < matchingRadius )
            {
              ++nHeavyFlavorJets;
-             isHeavyFlavor = true;
+             partonFlavor = 5; // This is not necessarily true since hadron-based matching cannot distinguish b- and c-jets. However, since the same scale factors are applied to b- and c-jets, this is a reasonable default.
            }
          }
        }
@@ -595,9 +599,13 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            (btagger==4 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
        {
          ++nBTaggedJets;
-         if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
+         if( partonFlavor==5 ) ++nBTaggedHeavyFlavorJets;
          // if MC, get b-tag scale factor
-         if( !iEvent.isRealData() ) scaleFactors.push_back(sfCalculator.scaleFactor((isHeavyFlavor || isCJet),btagger));
+         if( !iEvent.isRealData() )
+         {
+           if( useFixedSFs ) scaleFactors.push_back(sfCalculator.scaleFactor(partonFlavor,btagger));
+           else scaleFactors.push_back(sfCalculator.scaleFactor(partonFlavor,PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),btagger));
+         }
        }
 
        // loop over all tight muons and find those that are inside the jet (DeltaR<0.4)
@@ -1171,6 +1179,12 @@ BTagScaleFactorCalculator::BTagScaleFactorCalculator()
   TCHPT_SFl_ = 1.;
   SSVHPT_SFb_ = 1.;
   SSVHPT_SFl_ = 1.;
+  TCHEL_SFb_0to2p4 = new TF1("TCHEL_SFb_0to2p4","0.603913*((1.+(0.286361*x))/(1.+(0.170474*x)))", 30.,670.);
+  TCHEL_SFl_0to2p4 = new TF1("TCHEL_SFl_0to2p4","(1.10649*((1+(-9.00297e-05*x))+(2.32185e-07*(x*x))))+(-4.04925e-10*(x*(x*(x/(1+(-0.00051036*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5 = new TF1("TCHEL_SFl_0to0p5","(1.13615*((1+(-0.00119852*x))+(1.17888e-05*(x*x))))+(-9.8581e-08*(x*(x*(x/(1+(0.00689317*x))))))", 20.,670.);
+  TCHEL_SFl_0p5to1p0 = new TF1("TCHEL_SFl_0p5to1p0","(1.13277*((1+(-0.00084146*x))+(3.80313e-06*(x*x))))+(-8.75061e-09*(x*(x*(x/(1+(0.00118695*x))))))", 20.,670.);
+  TCHEL_SFl_1p0to1p5 = new TF1("TCHEL_SFl_1p0to1p5","(1.17163*((1+(-0.000828475*x))+(3.0769e-06*(x*x))))+(-4.692e-09*(x*(x*(x/(1+(0.000337759*x))))))", 20.,670.);
+  TCHEL_SFl_1p5to2p4 = new TF1("TCHEL_SFl_1p5to2p4","(1.14554*((1+(-0.000128043*x))+(4.10899e-07*(x*x))))+(-2.07565e-10*(x*(x*(x/(1+(-0.00118618*x))))))", 20.,670.);
 }
 
 // ------------ method that initializes the BTagScaleFactorCalculator class  ------------
@@ -1187,9 +1201,9 @@ BTagScaleFactorCalculator::init(const double TCHEL_SFb, const double TCHEL_SFl, 
 
 // ------------ method that returns the b-tag efficiency scale factor  ------------
 double
-BTagScaleFactorCalculator::scaleFactor(const bool isHeavyFlavor, const int btagger)
+BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const int btagger)
 {
-  if( isHeavyFlavor )
+  if( partonFlavor==5 || partonFlavor==4 )
   {
     if(btagger==0)      return TCHEL_SFb_;
     else if(btagger==3) return TCHPT_SFb_;
@@ -1204,5 +1218,70 @@ BTagScaleFactorCalculator::scaleFactor(const bool isHeavyFlavor, const int btagg
     else                return 1.;
   }
 }
+
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor  ------------
+double
+BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger)
+{
+  if( partonFlavor==5 || partonFlavor==4 )
+  {
+    if(btagger==0)  return scaleFactorBC_TCHEL(jetPt,jetEta);
+    else            return 1.;
+  }
+  else
+  {
+    if(btagger==0)  return scaleFactorUDSG_TCHEL(jetPt,jetEta);
+    else            return 1.;
+  }
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b- and c-jets and TCHEL tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorBC_TCHEL(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return TCHEL_SFb_0to2p4->Eval(Pt);
+
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for light flavor jets and TCHEL tagger ------------
+double
+BTagScaleFactorCalculator::scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta)
+{
+  double SF = 1.;
+  double Pt = jetPt;
+  double eta = fabs(jetEta);
+  // for scale factor extrapolation
+  if(Pt<20) Pt = 20;
+
+  if(eta<0.5)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_0to0p5->Eval(Pt);
+  }
+  else if(eta>=0.5 && eta<1.)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_0p5to1p0->Eval(Pt);
+  }
+  else if(eta>=1. && eta<1.5)
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_1p0to1p5->Eval(Pt);
+  }
+  else
+  {
+    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
+    else         SF = TCHEL_SFl_1p5to2p4->Eval(Pt);
+  }
+
+  return SF;
+}
+
 
 DEFINE_FWK_MODULE(MyAnalyzer);
