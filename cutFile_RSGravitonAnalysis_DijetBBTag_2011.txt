@@ -17,7 +17,7 @@ doPUReweighting                 1               -               -               
 # Run2011 era used for PU reweighting (0: Run2011A+Run2011B, 1: Run2011A, 2: Run2011B)
 puReweightingEra                0               -               -               -               -1
 # turn on/off b-tag scale factor reweighting
-doSFReweighting                 0               -               -               -               -1
+doSFReweighting                 1               -               -               -               -1
 # turn on/off the use of fixed scale factors
 useFixedSFs                     0               -               -               -               -1
 # fixed scale factors
@@ -27,6 +27,8 @@ TCHPT_SFb                       0.93            -               -               
 TCHPT_SFl                       1.2             -               -               -               -1
 SSVHPT_SFb                      0.95            -               -               -               -1
 SSVHPT_SFl                      0.98            -               -               -               -1
+# shift in scale factors (0: no shift, >0; positive, <0: negative)
+SF_Shift                        0               -               -               -               -1
 # select b-tagger (0: TCHEL, 1: TCHEM, 2: SSVHEM, 3: TCHPT, 4: SSVHPT)
 btagger                         0               -               -               -               -1
 # b-tag working points

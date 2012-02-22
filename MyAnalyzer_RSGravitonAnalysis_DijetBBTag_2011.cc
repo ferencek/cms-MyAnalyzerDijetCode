@@ -45,6 +45,7 @@
 
 // ROOT
 #include <TF1.h>
+#include <TH1D.h>
 #include <TLorentzVector.h>
 
 
@@ -58,13 +59,15 @@ class BTagScaleFactorCalculator
 {
  public:
    BTagScaleFactorCalculator();
-   void init(const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
+   void init(const double SF_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
    double scaleFactor(const int partonFlavor, const int btagger);
    double scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger);
-   double scaleFactorBC_TCHEL(const double jetPt, const double jetEta);
+   double scaleFactorB_TCHEL(const double jetPt, const double jetEta);
+   double scaleFactorC_TCHEL(const double jetPt, const double jetEta);
    double scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta);
 
  private:
+   double SF_shift_;
    double TCHEL_SFb_;
    double TCHEL_SFl_;
    double TCHPT_SFb_;
@@ -72,11 +75,22 @@ class BTagScaleFactorCalculator
    double SSVHPT_SFb_;
    double SSVHPT_SFl_;
    TF1 *TCHEL_SFb_0to2p4;
+   TH1D *TCHEL_SFb_errors;
    TF1 *TCHEL_SFl_0to2p4;
    TF1 *TCHEL_SFl_0to0p5;
    TF1 *TCHEL_SFl_0p5to1p0;
    TF1 *TCHEL_SFl_1p0to1p5;
    TF1 *TCHEL_SFl_1p5to2p4;
+   TF1 *TCHEL_SFl_0to2p4_min;
+   TF1 *TCHEL_SFl_0to0p5_min;
+   TF1 *TCHEL_SFl_0p5to1p0_min;
+   TF1 *TCHEL_SFl_1p0to1p5_min;
+   TF1 *TCHEL_SFl_1p5to2p4_min;
+   TF1 *TCHEL_SFl_0to2p4_max;
+   TF1 *TCHEL_SFl_0to0p5_max;
+   TF1 *TCHEL_SFl_0p5to1p0_max;
+   TF1 *TCHEL_SFl_1p0to1p5_max;
+   TF1 *TCHEL_SFl_1p5to2p4_max;
 };
 
 class MyAnalyzer : public BaseClass, public edm::EDFilter {
@@ -111,7 +125,7 @@ MyAnalyzer::MyAnalyzer(const edm::ParameterSet& iConfig) :
   BaseClass(iConfig)
 {
    //now do whatever initialization is needed
-   sfCalculator.init(getPreCutValue1("TCHEL_SFb"),getPreCutValue1("TCHEL_SFl"),getPreCutValue1("TCHPT_SFb"),getPreCutValue1("TCHPT_SFl"),getPreCutValue1("SSVHPT_SFb"),getPreCutValue1("SSVHPT_SFl"));
+   sfCalculator.init(getPreCutValue1("SF_Shift"),getPreCutValue1("TCHEL_SFb"),getPreCutValue1("TCHEL_SFl"),getPreCutValue1("TCHPT_SFb"),getPreCutValue1("TCHPT_SFl"),getPreCutValue1("SSVHPT_SFb"),getPreCutValue1("SSVHPT_SFl"));
 }
 
 MyAnalyzer::~MyAnalyzer()
@@ -620,24 +634,59 @@ MyAnalyzer::bTagEventWeight(const vector<double>& SFsForBTaggedJets, const unsig
 // BTagScaleFactorCalculator constructor
 BTagScaleFactorCalculator::BTagScaleFactorCalculator()
 {
+  SF_shift_ = 0.;
   TCHEL_SFb_ = 1.;
   TCHEL_SFl_ = 1.;
   TCHPT_SFb_ = 1.;
   TCHPT_SFl_ = 1.;
   SSVHPT_SFb_ = 1.;
   SSVHPT_SFl_ = 1.;
+  
   TCHEL_SFb_0to2p4 = new TF1("TCHEL_SFb_0to2p4","0.603913*((1.+(0.286361*x))/(1.+(0.170474*x)))", 30.,670.);
+
+  double ptBins[] = {30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500, 670};
+  TCHEL_SFb_errors = new TH1D("TCHEL_SFb_errors", "TCHEL_SFb_errors", 14, ptBins);
+  TCHEL_SFb_errors->SetBinContent(0,0.12);
+  TCHEL_SFb_errors->SetBinContent(1,0.0244956);
+  TCHEL_SFb_errors->SetBinContent(2,0.0237293);
+  TCHEL_SFb_errors->SetBinContent(3,0.0180131);
+  TCHEL_SFb_errors->SetBinContent(4,0.0182411);
+  TCHEL_SFb_errors->SetBinContent(5,0.0184592);
+  TCHEL_SFb_errors->SetBinContent(6,0.0106444);
+  TCHEL_SFb_errors->SetBinContent(7,0.011073);
+  TCHEL_SFb_errors->SetBinContent(8,0.0106296);
+  TCHEL_SFb_errors->SetBinContent(9,0.0175259);
+  TCHEL_SFb_errors->SetBinContent(10,0.0161566);
+  TCHEL_SFb_errors->SetBinContent(11,0.0158973);
+  TCHEL_SFb_errors->SetBinContent(12,0.0186782);
+  TCHEL_SFb_errors->SetBinContent(13,0.0371113);
+  TCHEL_SFb_errors->SetBinContent(14,0.0289788);
+  TCHEL_SFb_errors->SetBinContent(15,2*0.0289788);
+  
   TCHEL_SFl_0to2p4 = new TF1("TCHEL_SFl_0to2p4","(1.10649*((1+(-9.00297e-05*x))+(2.32185e-07*(x*x))))+(-4.04925e-10*(x*(x*(x/(1+(-0.00051036*x))))))", 20.,670.);
   TCHEL_SFl_0to0p5 = new TF1("TCHEL_SFl_0to0p5","(1.13615*((1+(-0.00119852*x))+(1.17888e-05*(x*x))))+(-9.8581e-08*(x*(x*(x/(1+(0.00689317*x))))))", 20.,670.);
   TCHEL_SFl_0p5to1p0 = new TF1("TCHEL_SFl_0p5to1p0","(1.13277*((1+(-0.00084146*x))+(3.80313e-06*(x*x))))+(-8.75061e-09*(x*(x*(x/(1+(0.00118695*x))))))", 20.,670.);
   TCHEL_SFl_1p0to1p5 = new TF1("TCHEL_SFl_1p0to1p5","(1.17163*((1+(-0.000828475*x))+(3.0769e-06*(x*x))))+(-4.692e-09*(x*(x*(x/(1+(0.000337759*x))))))", 20.,670.);
   TCHEL_SFl_1p5to2p4 = new TF1("TCHEL_SFl_1p5to2p4","(1.14554*((1+(-0.000128043*x))+(4.10899e-07*(x*x))))+(-2.07565e-10*(x*(x*(x/(1+(-0.00118618*x))))))", 20.,670.);
+
+  TCHEL_SFl_0to2p4_min = new TF1("TCHEL_SFl_0to2p4_min","(1.01541*((1+(-6.04627e-05*x))+(1.38195e-07*(x*x))))+(-2.83043e-10*(x*(x*(x/(1+(-0.000633609*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5_min = new TF1("TCHEL_SFl_0to0p5_min","(1.0369*((1+(-0.000945578*x))+(7.73273e-06*(x*x))))+(-4.47791e-08*(x*(x*(x/(1+(0.00499343*x))))))", 20.,670.);
+  TCHEL_SFl_0p5to1p0_min = new TF1("TCHEL_SFl_0p5to1p0_min","(0.983748*((1+(7.13613e-05*x))+(-1.08648e-05*(x*x))))+(2.96162e-06*(x*(x*(x/(1+(0.282104*x))))))", 20.,670.);
+  TCHEL_SFl_1p0to1p5_min = new TF1("TCHEL_SFl_1p0to1p5_min","(1.0698*((1+(-0.000731877*x))+(2.56922e-06*(x*x))))+(-3.0318e-09*(x*(x*(x/(1+(5.04118e-05*x))))))", 20.,670.);
+  TCHEL_SFl_1p5to2p4_min = new TF1("TCHEL_SFl_1p5to2p4_min","(1.04766*((1+(-6.87499e-05*x))+(2.2454e-07*(x*x))))+(-1.18395e-10*(x*(x*(x/(1+(-0.00128734*x))))))", 20.,670.);
+
+  TCHEL_SFl_0to2p4_max = new TF1("TCHEL_SFl_0to2p4_max","(1.19751*((1+(-0.000114197*x))+(3.08558e-07*(x*x))))+(-5.27598e-10*(x*(x*(x/(1+(-0.000422372*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5_max = new TF1("TCHEL_SFl_0to0p5_max","(1.22179*((1+(-0.000946228*x))+(7.37821e-06*(x*x))))+(-4.8451e-08*(x*(x*(x/(1+(0.0047976*x))))))", 20.,670.);
+  TCHEL_SFl_0p5to1p0_max = new TF1("TCHEL_SFl_0p5to1p0_max","(1.22714*((1+(-0.00085562*x))+(3.74425e-06*(x*x))))+(-8.91028e-09*(x*(x*(x/(1+(0.00109346*x))))))", 20.,670.);
+  TCHEL_SFl_1p0to1p5_max = new TF1("TCHEL_SFl_1p0to1p5_max","(1.27351*((1+(-0.000911891*x))+(3.5465e-06*(x*x))))+(-6.69625e-09*(x*(x*(x/(1+(0.000590847*x))))))", 20.,670.);
+  TCHEL_SFl_1p5to2p4_max = new TF1("TCHEL_SFl_1p5to2p4_max","(1.24367*((1+(-0.000182494*x))+(5.92637e-07*(x*x))))+(-3.3745e-10*(x*(x*(x/(1+(-0.00107694*x))))))", 20.,670.);
 }
 
 // ------------ method that initializes the BTagScaleFactorCalculator class  ------------
 void
-BTagScaleFactorCalculator::init(const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl)
+BTagScaleFactorCalculator::init(const double SF_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl)
 {
+  SF_shift_ = SF_shift; 
   TCHEL_SFb_ = TCHEL_SFb;
   TCHEL_SFl_ = TCHEL_SFl;
   TCHPT_SFb_ = TCHPT_SFb;
@@ -671,9 +720,14 @@ BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const int btagger
 double
 BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger)
 {
-  if( partonFlavor==5 || partonFlavor==4 )
+  if( partonFlavor==5 )
   {
-    if(btagger==0)  return scaleFactorBC_TCHEL(jetPt,jetEta);
+    if(btagger==0)  return scaleFactorB_TCHEL(jetPt,jetEta);
+    else            return 1.;
+  }
+  else if( partonFlavor==4 )
+  {
+    if(btagger==0)  return scaleFactorC_TCHEL(jetPt,jetEta);
     else            return 1.;
   }
   else
@@ -683,16 +737,39 @@ BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const double jetP
   }
 }
 
-// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b- and c-jets and TCHEL tagger  ------------
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b-jets and TCHEL tagger  ------------
 double
-BTagScaleFactorCalculator::scaleFactorBC_TCHEL(const double jetPt, const double jetEta)
+BTagScaleFactorCalculator::scaleFactorB_TCHEL(const double jetPt, const double jetEta)
 {
   double Pt = jetPt;
   // for scale factor extrapolation
   if(Pt<30) Pt = 30;
   if(Pt>670) Pt = 670;
 
-  return TCHEL_SFb_0to2p4->Eval(Pt);
+  if( SF_shift_ > 0. )
+    return TCHEL_SFb_0to2p4->Eval(Pt) + TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
+  else if( SF_shift_ < 0. )
+    return TCHEL_SFb_0to2p4->Eval(Pt) - TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
+  else
+    return TCHEL_SFb_0to2p4->Eval(Pt);
+
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for c-jets and TCHEL tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorC_TCHEL(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  if( SF_shift_ > 0. )
+    return TCHEL_SFb_0to2p4->Eval(Pt) + 2*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
+  else if( SF_shift_ < 0. )
+    return TCHEL_SFb_0to2p4->Eval(Pt) - 2*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
+  else
+    return TCHEL_SFb_0to2p4->Eval(Pt);
 
 }
 
@@ -706,27 +783,55 @@ BTagScaleFactorCalculator::scaleFactorUDSG_TCHEL(const double jetPt, const doubl
   // for scale factor extrapolation
   if(Pt<20) Pt = 20;
 
-  if(eta<0.5)
+  if( SF_shift_ > 0. )
   {
-    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
-    else         SF = TCHEL_SFl_0to0p5->Eval(Pt);
+    if( Pt>670 )
+      SF = (TCHEL_SFl_0to2p4->Eval(670) + 2*(TCHEL_SFl_0to2p4_max->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)));
+    else
+    {
+      if(eta<0.5)
+        SF = TCHEL_SFl_0to0p5_max->Eval(Pt);
+      else if(eta>=0.5 && eta<1.)
+        SF = TCHEL_SFl_0p5to1p0_max->Eval(Pt);
+      else if(eta>=1. && eta<1.5)
+        SF = TCHEL_SFl_1p0to1p5_max->Eval(Pt);
+      else
+        SF = TCHEL_SFl_1p5to2p4_max->Eval(Pt);
+    }
   }
-  else if(eta>=0.5 && eta<1.)
+  else if( SF_shift_ < 0. )
   {
-    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
-    else         SF = TCHEL_SFl_0p5to1p0->Eval(Pt);
-  }
-  else if(eta>=1. && eta<1.5)
-  {
-    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
-    else         SF = TCHEL_SFl_1p0to1p5->Eval(Pt);
+    if( Pt>670 )
+      SF = (TCHEL_SFl_0to2p4->Eval(670) + 2*(TCHEL_SFl_0to2p4_min->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)));
+    else
+    {
+      if(eta<0.5)
+        SF = TCHEL_SFl_0to0p5_min->Eval(Pt);
+      else if(eta>=0.5 && eta<1.)
+        SF = TCHEL_SFl_0p5to1p0_min->Eval(Pt);
+      else if(eta>=1. && eta<1.5)
+        SF = TCHEL_SFl_1p0to1p5_min->Eval(Pt);
+      else
+        SF = TCHEL_SFl_1p5to2p4_min->Eval(Pt);
+    }
   }
   else
   {
-    if( Pt>670 ) SF = TCHEL_SFl_0to2p4->Eval(670);
-    else         SF = TCHEL_SFl_1p5to2p4->Eval(Pt);
+    if( Pt>670 )
+      SF = TCHEL_SFl_0to2p4->Eval(670);
+    else
+    {
+      if(eta<0.5)
+        SF = TCHEL_SFl_0to0p5->Eval(Pt);
+      else if(eta>=0.5 && eta<1.)
+        SF = TCHEL_SFl_0p5to1p0->Eval(Pt);
+      else if(eta>=1. && eta<1.5)
+        SF = TCHEL_SFl_1p0to1p5->Eval(Pt);
+      else
+        SF = TCHEL_SFl_1p5to2p4->Eval(Pt);
+    }
   }
-
+  
   return SF;
 }
 
