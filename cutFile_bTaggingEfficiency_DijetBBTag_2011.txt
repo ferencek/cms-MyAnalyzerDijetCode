@@ -12,8 +12,6 @@
 #
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
-# select b-tagger (0: TCHEM, 1: SSVHEM, 2: TCHPT, 3: SSVHPT)
-#btagger                         0               -               -               -               -1
 # b-tag working points
 # TCHEL
 TCHEL_WP                        1.7             -               -               -               -1
@@ -51,9 +49,10 @@ JES_Shift                       0               -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
-nStatus3_bQuarks      -1            0                    -             -               0       16  -0.5 15.5
-nStatus2_bQuarks      1             +inf                 -             -               0       16  -0.5 15.5
-#DijetMassGen          -inf          +inf                 -             -               3       6000 0   6000
+nSt3_b                -inf          +inf                 -             -               0       16  -0.5 15.5
+nSt2_b                -inf          +inf                 -             -               0       16  -0.5 15.5
+nSt3_q_fromRSG        -inf          +inf                 -             -               5       16  -0.5 15.5
+nSt3_b_fromRSG        -inf          +inf                 -             -               5       16  -0.5 15.5
 nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
 nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
