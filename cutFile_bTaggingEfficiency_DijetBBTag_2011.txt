@@ -13,18 +13,26 @@
 #VariableName                   value1          value2          value3          value4          level
 #------------                   ------------    -------------   ------------    -------------   -----
 # b-tag working points
-# TCHEL
+# TCHE
 TCHEL_WP                        1.7             -               -               -               -1
-# TCHEM
 TCHEM_WP                        3.3             -               -               -               -1
-# TCHPL
+TCHET_WP                        10.2            -               -               -               -1
+# TCHP
 TCHPL_WP                        1.19            -               -               -               -1
-# TCHPT
+TCHPM_WP                        1.93            -               -               -               -1
 TCHPT_WP                        3.41            -               -               -               -1
-# SSVHEM
+# SSVHE
 SSVHEM_WP                       1.74            -               -               -               -1
-# SSVHPT
+# SSVHP
 SSVHPT_WP                       2.0             -               -               -               -1
+# JP
+JPL_WP                          0.275           -               -               -               -1
+JPM_WP                          0.545           -               -               -               -1
+JPT_WP                          0.790           -               -               -               -1
+# CSV
+CSVL_WP                         0.244           -               -               -               -1
+CSVM_WP                         0.679           -               -               -               -1
+CSVT_WP                         0.898           -               -               -               -1
 # matching type (0: parton flavor, 1: b or c hadrons)
 matchingType                    0               -               -               -               -1
 matchingRadius                  0.4             -               -               -               -1
@@ -49,10 +57,11 @@ JES_Shift                       0               -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
+gg_FinalState         -inf          +inf                 -             -               0       2   -0.5 1.5
 nSt3_b                -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt2_b                -inf          +inf                 -             -               0       16  -0.5 15.5
-nSt3_q_fromRSG        -inf          +inf                 -             -               5       16  -0.5 15.5
-nSt3_b_fromRSG        -inf          +inf                 -             -               5       16  -0.5 15.5
+nSt3_q_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
+nSt3_b_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
 nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
 nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
