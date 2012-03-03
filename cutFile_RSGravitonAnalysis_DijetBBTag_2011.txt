@@ -29,21 +29,29 @@ SSVHPT_SFb                      0.95            -               -               
 SSVHPT_SFl                      0.98            -               -               -               -1
 # shift in scale factors (0: no shift, >0; positive, <0: negative)
 SF_Shift                        0               -               -               -               -1
-# select b-tagger (0: TCHEL, 1: TCHEM, 2: SSVHEM, 3: TCHPT, 4: SSVHPT)
+# select b-tagger (0: TCHEL, 1: TCHEM, 2: TCHPT, 3: SSVHEM, 4: SSVHPT, 5: JPL, 6: JPM, 7: JPT, 8: CSVL, 9: CSVM, 10: CSVT)
 btagger                         0               -               -               -               -1
 # b-tag working points
-# TCHEL
+# TCHE
 TCHEL_WP                        1.7             -               -               -               -1
-# TCHEM
 TCHEM_WP                        3.3             -               -               -               -1
-# TCHPL
+TCHET_WP                        10.2            -               -               -               -1
+# TCHP
 TCHPL_WP                        1.19            -               -               -               -1
-# TCHPT
+TCHPM_WP                        1.93            -               -               -               -1
 TCHPT_WP                        3.41            -               -               -               -1
-# SSVHEM
+# SSVHE
 SSVHEM_WP                       1.74            -               -               -               -1
-# SSVHPT
+# SSVHP
 SSVHPT_WP                       2.0             -               -               -               -1
+# JP
+JPL_WP                          0.275           -               -               -               -1
+JPM_WP                          0.545           -               -               -               -1
+JPT_WP                          0.790           -               -               -               -1
+# CSV
+CSVL_WP                         0.244           -               -               -               -1
+CSVM_WP                         0.679           -               -               -               -1
+CSVT_WP                         0.898           -               -               -               -1
 # matching type (0: parton flavor, 1: b or c hadrons)
 matchingType                    0               -               -               -               -1
 matchingRadius                  0.4             -               -               -               -1

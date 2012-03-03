@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.2 2012/02/17 04:18:20 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.4 2012/02/22 06:23:39 ferencek Exp $
 //
 //
 
@@ -280,6 +280,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
    edm::Handle<vector<double> > PFJetTCHP;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
+   edm::Handle<vector<double> > PFJetJP;
+   iEvent.getByLabel(edm::InputTag("AK7PFJets:JetProbabilityBTag"), PFJetJP);
+   edm::Handle<vector<double> > PFJetCSV;
+   iEvent.getByLabel(edm::InputTag("AK7PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
    edm::Handle<vector<int> > PFJetPartonFlavor;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
 
@@ -387,9 +391,16 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP")) ||
            (btagger==1 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
-           (btagger==2 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
-           (btagger==3 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
-           (btagger==4 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
+           (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
+           (btagger==3 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
+           (btagger==4 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) ||
+           (btagger==5 && PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP")) ||
+           (btagger==6 && PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP")) ||
+           (btagger==7 && PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP")) ||
+           (btagger==8 && PFJetCSV->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP")) ||
+           (btagger==9 && PFJetCSV->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP")) ||
+           (btagger==10 && PFJetCSV->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP"))
+         )
        {
          ++nBTaggedJets;
          if( partonFlavor==5 ) ++nBTaggedHeavyFlavorJets;
