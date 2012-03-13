@@ -62,11 +62,12 @@ nSt3_b                -inf          +inf                 -             -        
 nSt2_b                -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt3_q_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt3_b_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
-nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
-nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
+nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
 absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
+passJetIdJ1           0             1                    -             -               3       2   -0.5 1.5
+passJetIdJ2           0             1                    -             -               3       2   -0.5 1.5
 DijetMass             -inf          +inf                 -             -               3       6000 0   6000
 #
 #

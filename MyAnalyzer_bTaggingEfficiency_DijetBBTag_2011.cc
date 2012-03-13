@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.4 2012/02/23 01:28:08 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.5 2012/02/29 23:20:51 ferencek Exp $
 //
 //
 
@@ -288,15 +288,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        PFJetE ->push_back( PFJetE_ ->at(i)*JES_ScaleFactor );
    }
 
-   // loop over PFJets and select PFJets that pass JetID requirements
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
-
-
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
@@ -328,22 +319,23 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG );
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG );
 
-   fillVariableWithValue("nJets_all", PFJetPt->size());
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
+   fillVariableWithValue( "nJets", PFJetPt->size() );
 
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ));
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
+     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ) );
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      fillVariableWithValue( "DijetMass", v_j1j2.M() );
@@ -355,7 +347,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int nHeavyFlavorJets = 0;
    
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
      // jet and GenParticle 4-vectors
      TLorentzVector v_j, v_gp;
@@ -366,15 +358,15 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        int partonFlavor = 0;
 
        // set jet 4-vector
-       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+       v_j.SetPtEtaPhiE(PFJetPt->at(i),PFJetEta->at(i),PFJetPhi->at(i),PFJetE->at(i));
 
        if( !iEvent.isRealData() )
        {
          if( matchingType==0 ) // parton-based matching
          {
-           partonFlavor = abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]));
+           partonFlavor = abs(PFJetPartonFlavor->at(i));
 
-           if( abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 ) ++nHeavyFlavorJets;
+           if( abs(PFJetPartonFlavor->at(i))==5 ) ++nHeavyFlavorJets;
          }
          else if( matchingType!=0 ) // hadron-based matching
          {
@@ -410,105 +402,105 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          {
            if(i==0)
            {
-             FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_B_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
            if(i==1)
            {
-             FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_B_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
          }
          else if( partonFlavor==4 )
          {
            if(i==0)
            {
-             FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_C_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
            if(i==1)
            {
-             FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
          }
          else
          {
            if(i==0)
            {
-             FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
            if(i==1)
            {
-             FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_All", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHEM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVL", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVM", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
-             if( PFJetJP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVT", PFJetPt->at(v_idx_pfjet_JetID[i]), PFJetEta->at(v_idx_pfjet_JetID[i]));
+             FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
          }
        }

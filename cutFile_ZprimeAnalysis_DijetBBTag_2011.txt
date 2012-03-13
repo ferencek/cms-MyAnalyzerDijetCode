@@ -37,11 +37,12 @@ eventPrintout                   0               -               -               
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
 PassPrimaryVertex     0             1                    -             -               0       2   -0.5 1.5
 PassBeamScraping      0             1                    -             -               0       2   -0.5 1.5
-nJets_all             1             +inf                 -             -               0       16  -0.5 15.5
-nJets_JetID           1             +inf                 -             -               0       16  -0.5 15.5
+nJets                 1             +inf                 -             -               0       16  -0.5 15.5
 absEtaJ1              -inf          +inf                 -             -               0       50   0   5
 absEtaJ2              -inf          +inf                 -             -               0       50   0   5
 absDeltaEtaJ1J2       -inf          +inf                 -             -               0       50   0   5
+passJetIdJ1           -inf          +inf                 -             -               0       2   -0.5 1.5
+passJetIdJ2           -inf          +inf                 -             -               0       2   -0.5 1.5
 nJets_HeavyFlavor     1             2                    -             -               0       16  -0.5 15.5
 #
 #

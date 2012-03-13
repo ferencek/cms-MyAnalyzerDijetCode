@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_TriggerEfficiency_DijetBBTag_2011.cc,v 1.1 2011/11/10 02:23:19 ferencek Exp $
+// $Id: MyAnalyzer_TriggerEfficiency_DijetBBTag_2011.cc,v 1.2 2011/11/17 02:12:50 ferencek Exp $
 //
 //
 
@@ -199,19 +199,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<vector<double> > PFJetTCHE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
 
-   // loop over PFJets
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       // select PFJets that pass tight JetID
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
-
    int passEEAnomJetFilter = 1;
-   if( v_idx_pfjet_JetID.size() > 0 )
+   if( PFJetPt->size() > 0 )
    {
-     if( PFJetPt->at(v_idx_pfjet_JetID[0]) > 15000 ) passEEAnomJetFilter = 0;
+     if( PFJetPt->at(0) > 15000 ) passEEAnomJetFilter = 0;
    }
 
    // Set the evaluation of the cuts to false and clear the variable values and filled status
@@ -224,29 +215,30 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue("PassCaloBndDRFlt", ( *passCaloBoundaryDRFilter ? 1 : 0 ) );
    fillVariableWithValue("PassEEAnomJetFilter", passEEAnomJetFilter );
 
-   fillVariableWithValue("nJets_all", PFJetPt->size());
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
+   fillVariableWithValue( "nJets", PFJetPt->size() );
    
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-       fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ) );
+       fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
+       fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ) );
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-       fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+       fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
+       fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
        
        TLorentzVector v_j1j2, v_j1, v_j2;
-       v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
-       v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
+       v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+       v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
        // calculate |DeltaEta(j1,j2)|
-       fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+       fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ) );
        // calculate M_j1j2
        v_j1j2 = v_j1 + v_j2;
 
        TVector2 v2_j1;
        TVector2 v2_j2;
-       v2_j1.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[0]) );
-       v2_j2.SetMagPhi( 1., PFJetPhi->at(v_idx_pfjet_JetID[1]) );
+       v2_j1.SetMagPhi( 1., PFJetPhi->at(0) );
+       v2_j2.SetMagPhi( 1., PFJetPhi->at(1) );
        fillVariableWithValue( "absDeltaPhiJ1J2", fabs( v2_j1.DeltaPhi(v2_j2) ) );
 
        fillVariableWithValue( "DijetMass", v_j1j2.M() );
@@ -256,15 +248,15 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        {
          if(btagger==1)
          {
-           if( PFJetSSVHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHEM_WP") ) ++nBTaggedJets;
+           if( PFJetSSVHE->at(i) > getPreCutValue1("SSVHEM_WP") ) ++nBTaggedJets;
          }
          else if(btagger==2)
          {
-           if( PFJetSSVHP->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("SSVHPT_WP") ) ++nBTaggedJets;
+           if( PFJetSSVHP->at(i) > getPreCutValue1("SSVHPT_WP") ) ++nBTaggedJets;
          }
          else
          {
-           if( PFJetTCHE->at(v_idx_pfjet_JetID[i]) > getPreCutValue1("TCHEM_WP") ) ++nBTaggedJets;
+           if( PFJetTCHE->at(i) > getPreCutValue1("TCHEM_WP") ) ++nBTaggedJets;
          }
        }
 

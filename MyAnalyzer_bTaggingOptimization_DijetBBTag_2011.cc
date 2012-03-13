@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.2 2012/01/26 19:30:06 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingOptimization_DijetBBTag_2011.cc,v 1.1 2012/02/23 20:38:10 ferencek Exp $
 //
 //
 
@@ -289,14 +289,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        PFJetE ->push_back( PFJetE_ ->at(i)*JES_ScaleFactor );
    }
 
-   // loop over PFJets and select PFJets that pass JetID requirements
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
-
 //    int nBTaggedJets = 0;
    int nHeavyFlavorJets = 0;
 //    int nBTaggedHeavyFlavorJets = 0;
@@ -319,22 +311,23 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG );
 
-   fillVariableWithValue("nJets_all", PFJetPt->size());
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
+   fillVariableWithValue( "nJets", PFJetPt->size() );
 
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ));
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
+     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ) );
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      fillVariableWithValue( "DijetMass", v_j1j2.M() );
@@ -348,11 +341,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        bool isHeavyFlavor = false;
 
        // set jet 4-vector
-       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+       v_j.SetPtEtaPhiE(PFJetPt->at(i),PFJetEta->at(i),PFJetPhi->at(i),PFJetE->at(i));
 
        if( !iEvent.isRealData() )
        {
-         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
+         if( matchingType==0 && abs(PFJetPartonFlavor->at(i))==5 )
          {
            ++nHeavyFlavorJets;
            isHeavyFlavor = true;
@@ -385,10 +378,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
         
-//        if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
-//            (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
-//            (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
-//            (btagger==3 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
+//        if( (btagger==0 && PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP")) ||
+//            (btagger==1 && PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP")) ||
+//            (btagger==2 && PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP")) ||
+//            (btagger==3 && PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP")) )
 //        {
 //          ++nBTaggedJets;
 //          if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
@@ -447,191 +440,191 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//       FillUserTH2D("h2_TCHE_TCHP_SSVHE_SSVHP_DijetMass1to1p5TeV_denom", 1, 1); // (Original broad fill left as example to me.)
 
 		//FILL COL 1 OF NUM
-	       if( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ){
+	       if( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ){
 			FillUserTH2D(titlenum[n], 1, 1);
 		}
 		 
 		//FILL COL 2 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ||
-		   ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ||
+		   ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 2, 1);
 	       }
-	       if( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ){
+	       if( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ){
 			FillUserTH2D(titlenum[n], 2, 2);
 		}
 		
 		//FILL COL 3 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ||
-		   ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ||
+		   ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 3, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ||
-		   ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ||
+		   ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 3, 2);
 	       }
-	       if( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ){
+	       if( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ){
 			FillUserTH2D(titlenum[n], 3, 3);
 		}
 		
 		//FILL COL 4 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 4, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 4, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 4, 3);
 	       }
-	       if( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ){
+	       if( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ){
 			FillUserTH2D(titlenum[n], 4, 4);
 	       } 
 	       
 	       	//FILL COL 5 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 5, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 5, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 5, 3);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ){
 			FillUserTH2D(titlenum[n], 5, 4);
 	       }
-	       if( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ){
+	       if( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ){
 			FillUserTH2D(titlenum[n], 5, 5);
 	       } 
 	       
 	       	//FILL COL 6 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 6, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 6, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 6, 3);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ){
 			FillUserTH2D(titlenum[n], 6, 4);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ||
-		   ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ||
+		   ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ){
 			FillUserTH2D(titlenum[n], 6, 5);
 	       }
-	       if( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ){
+	       if( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ){
 			FillUserTH2D(titlenum[n], 6, 6);
 	       } 
 	       
 	       	//FILL COL 7 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 3);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 4);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 5);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ){
 			FillUserTH2D(titlenum[n], 7, 6);
 	       }
-	       if( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ){
+	       if( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ){
 			FillUserTH2D(titlenum[n], 7, 7);
 	       } 
 	       
 	       	//FILL COL 8 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 3);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 4);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 5);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 6);
 	       }
-	       if( ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ||
-		   ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ){
+	       if( ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ||
+		   ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 8, 7);
 	       }
-	       if( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ){
+	       if( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ){
 			FillUserTH2D(titlenum[n], 8, 8);
 	       } 
 	       
 	       	//FILL COL 9 OF NUM (BOTTOM UP)
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 1);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 2);
 	       }
-	       if( ( PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP") ) ){
+	       if( ( PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 3);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPL_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPL_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 4);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPM_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPM_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 5);
 	       }
-	       if( ( PFJetTCHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP") ) ){
+	       if( ( PFJetTCHP->at(0)>getPreCutValue1("TCHPT_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHP->at(1)>getPreCutValue1("TCHPT_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 6);
 	       }
-	       if( ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP") ) ){
+	       if( ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHEM_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 7);
 	       }
-	       if( ( PFJetSSVHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ) ||
-		   ( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetSSVHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP") ) ){
+	       if( ( PFJetSSVHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ) ||
+		   ( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetSSVHE->at(1)>getPreCutValue1("SSVHET_WP") ) ){
 			FillUserTH2D(titlenum[n], 9, 8);
 	       }
-	       if( PFJetSSVHP->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetSSVHP->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP") ){
+	       if( PFJetSSVHP->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetSSVHP->at(1)>getPreCutValue1("SSVHPT_WP") ){
 			FillUserTH2D(titlenum[n], 9, 9);
 	       }   
 	       
@@ -640,40 +633,40 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	       for(int m=1; m<=9; m+=1){
 	       		FillUserTH1D(titledenom1[n], m);
 	       }	
-       		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEL_WP"))){
+       		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHEL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEL_WP"))){
 			FillUserTH1D(titlenum1[n], 1);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHEM_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHEM_WP"))){
 			FillUserTH1D(titlenum1[n], 2);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHET_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHET_WP"))){
 			FillUserTH1D(titlenum1[n], 3);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPL_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHPL_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHPL_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHPL_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHPL_WP"))){
 			FillUserTH1D(titlenum1[n], 4);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPM_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHPM_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHPM_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHPM_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHPM_WP"))){
 			FillUserTH1D(titlenum1[n], 5);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("TCHPT_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("TCHPT_WP") || PFJetTCHE->at(1)>getPreCutValue1("TCHPT_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("TCHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("TCHPT_WP"))){
 			FillUserTH1D(titlenum1[n], 6);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHEM_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("SSVHEM_WP") || PFJetTCHE->at(1)>getPreCutValue1("SSVHEM_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("SSVHEM_WP") && PFJetTCHE->at(1)>getPreCutValue1("SSVHEM_WP"))){
 			FillUserTH1D(titlenum1[n], 7);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHET_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("SSVHET_WP") || PFJetTCHE->at(1)>getPreCutValue1("SSVHET_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("SSVHET_WP") && PFJetTCHE->at(1)>getPreCutValue1("SSVHET_WP"))){
 			FillUserTH1D(titlenum1[n], 8);
 		}
-		if( (PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") || PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP")) && 
-       		!(PFJetTCHE->at(v_idx_pfjet_JetID[0])>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(v_idx_pfjet_JetID[1])>getPreCutValue1("SSVHPT_WP"))){
+		if( (PFJetTCHE->at(0)>getPreCutValue1("SSVHPT_WP") || PFJetTCHE->at(1)>getPreCutValue1("SSVHPT_WP")) &&
+       		!(PFJetTCHE->at(0)>getPreCutValue1("SSVHPT_WP") && PFJetTCHE->at(1)>getPreCutValue1("SSVHPT_WP"))){
 			FillUserTH1D(titlenum1[n], 9);
 		}
    	}

@@ -78,12 +78,13 @@ resonanceMass                   3500            -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
-nJets_all             -inf          +inf                 -             -               0       16  -0.5 15.5
-nJets_JetID           1             +inf                 -             -               1       16  -0.5 15.5
+nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
 absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
 PassHBHENoiseFilter   0             1                    -             -               4       2   -0.5 1.5
+passJetIdJ1           0             1                    -             -               4       2   -0.5 1.5
+passJetIdJ2           0             1                    -             -               4       2   -0.5 1.5
 PhiJ1                 -inf          +inf                 -             -               4       200 -3.15 3.15
 PhiJ2                 -inf          +inf                 -             -               4       200 -3.15 3.15
 DeltaPhiJ1J2          -inf          +inf                 -             -               4       100  0   3.15

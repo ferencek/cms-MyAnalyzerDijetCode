@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.10 2012/01/20 23:37:07 ferencek Exp $
+// $Id: MyAnalyzer_GSP_MainAnalysis_DijetBBTag_2011.cc,v 1.1 2012/02/03 00:24:17 ferencek Exp $
 //
 //
 
@@ -454,14 +454,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        PFJetE ->push_back( PFJetE_ ->at(i)*JES_ScaleFactor );
    }
    
-   // loop over PFJets and select PFJets that pass JetID requirements
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
-
    // loop over primary vertices and select good ones
    vector<int> v_idx_goodPV;
    for(size_t i=0; i<PVX->size(); i++)
@@ -498,9 +490,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    int passEEAnomJetFilter = 1;
-   if( v_idx_pfjet_JetID.size() > 0 )
+   if( PFJetPt->size() > 0 )
    {
-     if( PFJetPt->at(v_idx_pfjet_JetID[0]) > 15000 ) passEEAnomJetFilter = 0;
+     if( PFJetPt->at(0) > 15000 ) passEEAnomJetFilter = 0;
    }
 
    int nBTaggedJets = 0;
@@ -509,7 +501,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int nBTaggedHeavyFlavorJets = 0;
    int nMuons = 0;
 
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
      // jet, GenParticle, and muon 4-vectors
      TLorentzVector v_j, v_gp, v_m;
@@ -520,11 +512,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        bool isHeavyFlavor = false;
 
        // set jet 4-vector
-       v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+       v_j.SetPtEtaPhiE(PFJetPt->at(i),PFJetEta->at(i),PFJetPhi->at(i),PFJetE->at(i));
 
        if( !iEvent.isRealData() )
        {
-         if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5 )
+         if( matchingType==0 && abs(PFJetPartonFlavor->at(i))==5 )
          {
            ++nHeavyFlavorJets;
            isHeavyFlavor = true;
@@ -557,10 +549,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
 
-       if( (btagger==0 && PFJetTCHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHEM_WP")) ||
-           (btagger==1 && PFJetSSVHE->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHEM_WP")) ||
-           (btagger==2 && PFJetTCHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("TCHPT_WP")) ||
-           (btagger==3 && PFJetSSVHP->at(v_idx_pfjet_JetID[i])>getPreCutValue1("SSVHPT_WP")) )
+       if( (btagger==0 && PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP")) ||
+           (btagger==1 && PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP")) ||
+           (btagger==2 && PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP")) ||
+           (btagger==3 && PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP")) )
        {
          ++nBTaggedJets;
          if( isHeavyFlavor ) ++nBTaggedHeavyFlavorJets;
@@ -600,34 +592,35 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    fillVariableWithValue("METoSumET_pretag", MET->front()/SumET->front(), pretagWeight );
 
-   fillVariableWithValue("nJets_all", PFJetPt->size(), pretagWeight);
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), pretagWeight);
+   fillVariableWithValue("nJets", PFJetPt->size(), pretagWeight)
 
    fillVariableWithValue("nGoodVertices_pretag", v_idx_goodPV.size(), pretagWeight );
 
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "PhiJ1_pretag", PFJetPhi->at(v_idx_pfjet_JetID[0]), pretagWeight );
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
-     fillVariableWithValue( "EtaJ1_pretag", PFJetEta->at(v_idx_pfjet_JetID[0]), pretagWeight );
-     fillVariableWithValue( "PtJ1_cut", PFJetPt->at(v_idx_pfjet_JetID[0]), pretagWeight );
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ), pretagWeight );
+     fillVariableWithValue( "PhiJ1_pretag", PFJetPhi->at(0), pretagWeight );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ), pretagWeight );
+     fillVariableWithValue( "EtaJ1_pretag", PFJetEta->at(0), pretagWeight );
+     fillVariableWithValue( "PtJ1_cut", PFJetPt->at(0), pretagWeight );
      fillVariableWithValue( "PtJ1_pretag", getVariableValue("PtJ1_cut"), pretagWeight );
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "PhiJ2_pretag", PFJetPhi->at(v_idx_pfjet_JetID[1]), pretagWeight );
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
-     fillVariableWithValue( "EtaJ2_pretag", PFJetEta->at(v_idx_pfjet_JetID[1]), pretagWeight );
-     fillVariableWithValue( "PtJ2_cut", PFJetPt->at(v_idx_pfjet_JetID[1]), pretagWeight );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ), pretagWeight );
+     fillVariableWithValue( "PhiJ2_pretag", PFJetPhi->at(1), pretagWeight );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ), pretagWeight );
+     fillVariableWithValue( "EtaJ2_pretag", PFJetEta->at(1), pretagWeight );
+     fillVariableWithValue( "PtJ2_cut", PFJetPt->at(1), pretagWeight );
      fillVariableWithValue( "PtJ2_pretag", getVariableValue("PtJ2_cut"), pretagWeight );
     
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ), pretagWeight );
      fillVariableWithValue( "DeltaEtaJ1J2_pretag", getVariableValue("absDeltaEtaJ1J2"), pretagWeight );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
+     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      
@@ -672,8 +665,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if(passedAllPreviousCuts("DijetMass_pretag"))
    {
-     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[0]) ), pretagWeight );
-     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[1]) ), pretagWeight );
+     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(0) ), pretagWeight );
+     FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(1) ), pretagWeight );
      
      if( nHeavyFlavorJets==2 )
        FillUserTH1D("h1_J1J2HeavyFlavor", 1, 2.*pretagWeight );
@@ -926,7 +919,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    cutNames.push_back("EtaJ1"); cutNames.push_back("EtaJ2"); cutNames.push_back("DeltaEtaJ1J2"); cutNames.push_back("PtJ1"); cutNames.push_back("PtJ2");
    cutNames.push_back("DijetMass"); cutNames.push_back("nMuons"); cutNames.push_back("METoSumET");
    
-   if( v_idx_pfjet_JetID.size() >= 2 && !iEvent.isRealData() && doSFReweighting )
+   if( PFJetPt->size() >= 2 && !iEvent.isRealData() && doSFReweighting )
    {
      for( int nbtags=1; nbtags<=2; ++nbtags )
      {
@@ -974,10 +967,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // loop over the two leading ak7 PFJets that pass jet ID requirements
      for (size_t i=0; i<2; ++i)
      {
-       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetPtRaw->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetEta->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetPhi->at(v_idx_pfjet_JetID[i]) << endl;
+       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(i) << ", "
+                                                                                  << PFJetPtRaw->at(i) << ", "
+                                                                                  << PFJetEta->at(i) << ", "
+                                                                                  << PFJetPhi->at(i) << endl;
      }
      cout << category << ": |DeltaEtaJ1J2|: "<< getVariableValue("absDeltaEtaJ1J2") << endl;
      cout << category << ": |DeltaPhiJ1J2|: "<< getVariableValue("absDeltaPhiJ1J2") << endl;
@@ -1000,10 +993,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // loop over the two leading ak7 PFJets that pass jet ID requirements
      for (size_t i=0; i<2; ++i)
      {
-       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetPtRaw->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetEta->at(v_idx_pfjet_JetID[i]) << ", "
-                                                                                  << PFJetPhi->at(v_idx_pfjet_JetID[i]) << endl;
+       cout << category << ": PassJetID PFJet "<< i << " Pt, PtRaw, eta, phi: " << PFJetPt->at(i) << ", "
+                                                                                  << PFJetPtRaw->at(i) << ", "
+                                                                                  << PFJetEta->at(i) << ", "
+                                                                                  << PFJetPhi->at(i) << endl;
      }
      cout << category << ": |DeltaEtaJ1J2|: "<< getVariableValue("absDeltaEtaJ1J2") << endl;
      cout << category << ": |DeltaPhiJ1J2|: "<< getVariableValue("absDeltaPhiJ1J2") << endl;

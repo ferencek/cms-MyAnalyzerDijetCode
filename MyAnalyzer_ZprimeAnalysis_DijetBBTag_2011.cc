@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.7 2011/11/30 09:46:43 ferencek Exp $
+// $Id: MyAnalyzer_ZprimeAnalysis_DijetBBTag_2011.cc,v 1.2 2011/12/15 02:16:55 ferencek Exp $
 //
 //
 
@@ -194,14 +194,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<vector<int> > GenParticleStatus;
    iEvent.getByLabel(edm::InputTag("GenParticles:Status"), GenParticleStatus);
 
-   // loop over PFJets and select PFJets that pass JetID requirements
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
-
+   
    int case1_counter = 0, case2_counter = 0, case3_counter = 0, case4_counter = 0, case5_counter = 0;
    
    // Set the evaluation of the cuts to false and clear the variable values and filled status
@@ -210,18 +203,19 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue("PassPrimaryVertex", ( *passPrimaryVertex ? 1 : 0 ), eventWeight );
    fillVariableWithValue("PassBeamScraping", ( *passBeamScraping ? 1 : 0 ), eventWeight );
 
-   fillVariableWithValue("nJets_all", PFJetPt->size(), eventWeight);
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size(), eventWeight);
+   fillVariableWithValue( "nJets", PFJetPt->size(), eventWeight );
 
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ), eventWeight );
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ), eventWeight );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ), eventWeight );
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ), eventWeight );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ), eventWeight );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ), eventWeight );
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ), eventWeight );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ), eventWeight );
     
      int nJets_HeavyFlavor = 0;
      TLorentzVector v_j, v_gp;
@@ -229,9 +223,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // loop over two leading jets
      for(size_t i=0; i<2; ++i)
      {
-       FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]) ), eventWeight );
+       FillUserTH1D("h1_J1J2PartonFlavor", abs( PFJetPartonFlavor->at(i) ), eventWeight );
       
-       if( matchingType==0 && abs(PFJetPartonFlavor->at(v_idx_pfjet_JetID[i]))==5)
+       if( matchingType==0 && abs(PFJetPartonFlavor->at(i))==5)
          ++nJets_HeavyFlavor;
        else if( matchingType!=0 )
        {
@@ -241,7 +235,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          double minDeltaR_cHadron = 999.;
 
          // initialize jet 4-vector
-         v_j.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[i]),PFJetEta->at(v_idx_pfjet_JetID[i]),PFJetPhi->at(v_idx_pfjet_JetID[i]),PFJetE->at(v_idx_pfjet_JetID[i]));
+         v_j.SetPtEtaPhiE(PFJetPt->at(i),PFJetEta->at(i),PFJetPhi->at(i),PFJetE->at(i));
 
          // loop over GenParticles
          for(size_t j=0; j<GenParticlePt->size(); ++j)

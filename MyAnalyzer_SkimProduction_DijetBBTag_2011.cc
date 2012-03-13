@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.1 2011/11/14 02:28:47 ferencek Exp $
+// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.2 2012/01/10 00:43:38 ferencek Exp $
 //
 //
 
@@ -152,35 +152,27 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
    edm::Handle<vector<int> > PFJetPassJetID;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
-   
-   // loop over PFJets
-   vector<int> v_idx_pfjet_JetID;
-   for(size_t i=0; i<PFJetPt->size(); i++)
-   {
-       // select PFJets that pass JetID requirments
-       if( !PFJetPassJetID->at(i) ) continue;
-       v_idx_pfjet_JetID.push_back(i);
-   }
 
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
-   fillVariableWithValue("nJets_all", PFJetPt->size());
-   fillVariableWithValue("nJets_JetID", v_idx_pfjet_JetID.size());
+   fillVariableWithValue( "nJets", PFJetPt->size() );
 
-   if( v_idx_pfjet_JetID.size() >= 1 )
+   if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) ));
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
    }
-   if( v_idx_pfjet_JetID.size() >= 2 )
+   if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[0]),PFJetEta->at(v_idx_pfjet_JetID[0]),PFJetPhi->at(v_idx_pfjet_JetID[0]),PFJetE->at(v_idx_pfjet_JetID[0]));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(v_idx_pfjet_JetID[1]),PFJetEta->at(v_idx_pfjet_JetID[1]),PFJetPhi->at(v_idx_pfjet_JetID[1]),PFJetE->at(v_idx_pfjet_JetID[1]));
+     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(v_idx_pfjet_JetID[0]) - PFJetEta->at(v_idx_pfjet_JetID[1]) ) );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ) );
      // calculate M_j1j2
      v_j1j2 = v_j1 + v_j2;
      fillVariableWithValue( "DijetMass800", v_j1j2.M() );
