@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.5 2012/03/03 00:47:48 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.6 2012/03/13 01:13:52 ferencek Exp $
 //
 //
 
@@ -59,38 +59,92 @@ class BTagScaleFactorCalculator
 {
  public:
    BTagScaleFactorCalculator();
-   void init(const double SF_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
+   void init(const double SFb_shift, const double SFl_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl);
    double scaleFactor(const int partonFlavor, const int btagger);
    double scaleFactor(const int partonFlavor, const double jetPt, const double jetEta, const int btagger);
+   
    double scaleFactorB_TCHEL(const double jetPt, const double jetEta);
    double scaleFactorC_TCHEL(const double jetPt, const double jetEta);
    double scaleFactorUDSG_TCHEL(const double jetPt, const double jetEta);
+   
+   double scaleFactorB_CSVL(const double jetPt, const double jetEta);
+   double scaleFactorC_CSVL(const double jetPt, const double jetEta);
+   double scaleFactorUDSG_CSVL(const double jetPt, const double jetEta);
+   
+   double scaleFactorB_CSVM(const double jetPt, const double jetEta);
+   double scaleFactorC_CSVM(const double jetPt, const double jetEta);
+   double scaleFactorUDSG_CSVM(const double jetPt, const double jetEta);
 
  private:
-   double SF_shift_;
+   double SFb_shift_;
+   double SFl_shift_;
    double TCHEL_SFb_;
    double TCHEL_SFl_;
    double TCHPT_SFb_;
    double TCHPT_SFl_;
    double SSVHPT_SFb_;
    double SSVHPT_SFl_;
-   TF1 *TCHEL_SFb_0to2p4;
+
+   // TCHEL
+   TF1  *TCHEL_SFb_0to2p4;
    TH1D *TCHEL_SFb_errors;
+   
    TF1 *TCHEL_SFl_0to2p4;
    TF1 *TCHEL_SFl_0to0p5;
    TF1 *TCHEL_SFl_0p5to1p0;
    TF1 *TCHEL_SFl_1p0to1p5;
    TF1 *TCHEL_SFl_1p5to2p4;
+   
    TF1 *TCHEL_SFl_0to2p4_min;
    TF1 *TCHEL_SFl_0to0p5_min;
    TF1 *TCHEL_SFl_0p5to1p0_min;
    TF1 *TCHEL_SFl_1p0to1p5_min;
    TF1 *TCHEL_SFl_1p5to2p4_min;
+   
    TF1 *TCHEL_SFl_0to2p4_max;
    TF1 *TCHEL_SFl_0to0p5_max;
    TF1 *TCHEL_SFl_0p5to1p0_max;
    TF1 *TCHEL_SFl_1p0to1p5_max;
    TF1 *TCHEL_SFl_1p5to2p4_max;
+   // CSVL
+   TF1  *CSVL_SFb_0to2p4;
+   TH1D *CSVL_SFb_errors;
+
+   TF1 *CSVL_SFl_0to2p4;
+   TF1 *CSVL_SFl_0to0p5;
+   TF1 *CSVL_SFl_0p5to1p0;
+   TF1 *CSVL_SFl_1p0to1p5;
+   TF1 *CSVL_SFl_1p5to2p4;
+
+   TF1 *CSVL_SFl_0to2p4_min;
+   TF1 *CSVL_SFl_0to0p5_min;
+   TF1 *CSVL_SFl_0p5to1p0_min;
+   TF1 *CSVL_SFl_1p0to1p5_min;
+   TF1 *CSVL_SFl_1p5to2p4_min;
+
+   TF1 *CSVL_SFl_0to2p4_max;
+   TF1 *CSVL_SFl_0to0p5_max;
+   TF1 *CSVL_SFl_0p5to1p0_max;
+   TF1 *CSVL_SFl_1p0to1p5_max;
+   TF1 *CSVL_SFl_1p5to2p4_max;
+   // CSVM
+   TF1  *CSVM_SFb_0to2p4;
+   TH1D *CSVM_SFb_errors;
+
+   TF1 *CSVM_SFl_0to2p4;
+   TF1 *CSVM_SFl_0to0p8;
+   TF1 *CSVM_SFl_0p8to1p6;
+   TF1 *CSVM_SFl_1p6to2p4;
+
+   TF1 *CSVM_SFl_0to2p4_min;
+   TF1 *CSVM_SFl_0to0p8_min;
+   TF1 *CSVM_SFl_0p8to1p6_min;
+   TF1 *CSVM_SFl_1p6to2p4_min;
+
+   TF1 *CSVM_SFl_0to2p4_max;
+   TF1 *CSVM_SFl_0to0p8_max;
+   TF1 *CSVM_SFl_0p8to1p6_max;
+   TF1 *CSVM_SFl_1p6to2p4_max;
 };
 
 class MyAnalyzer : public BaseClass, public edm::EDFilter {
@@ -125,7 +179,7 @@ MyAnalyzer::MyAnalyzer(const edm::ParameterSet& iConfig) :
   BaseClass(iConfig)
 {
    //now do whatever initialization is needed
-   sfCalculator.init(getPreCutValue1("SF_Shift"),getPreCutValue1("TCHEL_SFb"),getPreCutValue1("TCHEL_SFl"),getPreCutValue1("TCHPT_SFb"),getPreCutValue1("TCHPT_SFl"),getPreCutValue1("SSVHPT_SFb"),getPreCutValue1("SSVHPT_SFl"));
+   sfCalculator.init(getPreCutValue1("SFb_Shift"),getPreCutValue1("SFl_Shift"),getPreCutValue1("TCHEL_SFb"),getPreCutValue1("TCHEL_SFl"),getPreCutValue1("TCHPT_SFb"),getPreCutValue1("TCHPT_SFl"),getPreCutValue1("SSVHPT_SFb"),getPreCutValue1("SSVHPT_SFl"));
 }
 
 MyAnalyzer::~MyAnalyzer()
@@ -157,9 +211,15 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_DijetMass_bbbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_bbbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_bbbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_DijetMass_nonbbbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_DijetMass_nonbbbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
-   CreateUserTH1D("h1_DijetMass_nonbbbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_ccbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_ccbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_ccbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_qqbarlight_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_qqbarlight_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_qqbarlight_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_gg_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_gg_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_gg_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    
    // initialize your variables here
 
@@ -409,13 +469,17 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
-   int nSt3_q_fromRSG = 0, nSt3_b_fromRSG = 0;
+   int nSt3_b_fromRSG = 0, nSt3_c_fromRSG = 0, nSt3_q_fromRSG = 0;
 
    for(size_t i=0; i<GenParticlePt->size(); i++)
    {
      if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
      {
        if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_b_fromRSG;
+     }
+     if( abs(GenParticlePdgId->at(i))==4 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
+     {
+       if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_c_fromRSG;
      }
      if( abs(GenParticlePdgId->at(i))!=21 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
      {
@@ -497,19 +561,49 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_bbbar_2tag", getVariableValue("DijetMass"), eventWeight );
        }
      }
-     else
+     if( nSt3_c_fromRSG==2 )
      {
        if( doSFReweighting )
        {
-         FillUserTH1D("h1_DijetMass_nonbbbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
-         FillUserTH1D("h1_DijetMass_nonbbbar_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
-         FillUserTH1D("h1_DijetMass_nonbbbar_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
+         FillUserTH1D("h1_DijetMass_ccbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
+         FillUserTH1D("h1_DijetMass_ccbar_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
+         FillUserTH1D("h1_DijetMass_ccbar_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
        }
        else
        {
-         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_nonbbbar_0tag", getVariableValue("DijetMass"), eventWeight );
-         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_nonbbbar_1tag", getVariableValue("DijetMass"), eventWeight );
-         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_nonbbbar_2tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_ccbar_0tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_ccbar_1tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_ccbar_2tag", getVariableValue("DijetMass"), eventWeight );
+       }
+     }
+     if( nSt3_q_fromRSG==2 && nSt3_b_fromRSG==0 && nSt3_c_fromRSG==0 )
+     {
+       if( doSFReweighting )
+       {
+         FillUserTH1D("h1_DijetMass_qqbarlight_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
+         FillUserTH1D("h1_DijetMass_qqbarlight_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
+         FillUserTH1D("h1_DijetMass_qqbarlight_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
+       }
+       else
+       {
+         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_qqbarlight_0tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_qqbarlight_1tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_qqbarlight_2tag", getVariableValue("DijetMass"), eventWeight );
+       }
+     }
+     if( nSt3_q_fromRSG==0 )
+     {
+       if( doSFReweighting )
+       {
+         FillUserTH1D("h1_DijetMass_gg_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
+         FillUserTH1D("h1_DijetMass_gg_1tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,1) );
+         FillUserTH1D("h1_DijetMass_gg_2tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,2) );
+       }
+       else
+       {
+         if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_gg_0tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_gg_1tag", getVariableValue("DijetMass"), eventWeight );
+         if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_gg_2tag", getVariableValue("DijetMass"), eventWeight );
        }
      }
    }
@@ -638,59 +732,137 @@ MyAnalyzer::bTagEventWeight(const vector<double>& SFsForBTaggedJets, const unsig
 // BTagScaleFactorCalculator constructor
 BTagScaleFactorCalculator::BTagScaleFactorCalculator()
 {
-  SF_shift_ = 0.;
+  SFb_shift_ = 0.;
+  SFl_shift_ = 0.;
   TCHEL_SFb_ = 1.;
   TCHEL_SFl_ = 1.;
   TCHPT_SFb_ = 1.;
   TCHPT_SFl_ = 1.;
   SSVHPT_SFb_ = 1.;
   SSVHPT_SFl_ = 1.;
-  
+
+  double PtBins_b[] = {30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500, 670};
+  // TCHEL
   TCHEL_SFb_0to2p4 = new TF1("TCHEL_SFb_0to2p4","0.603913*((1.+(0.286361*x))/(1.+(0.170474*x)))", 30.,670.);
 
-  double ptBins[] = {30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500, 670};
-  TCHEL_SFb_errors = new TH1D("TCHEL_SFb_errors", "TCHEL_SFb_errors", 14, ptBins);
-  TCHEL_SFb_errors->SetBinContent(0,0.12);
-  TCHEL_SFb_errors->SetBinContent(1,0.0244956);
-  TCHEL_SFb_errors->SetBinContent(2,0.0237293);
-  TCHEL_SFb_errors->SetBinContent(3,0.0180131);
-  TCHEL_SFb_errors->SetBinContent(4,0.0182411);
-  TCHEL_SFb_errors->SetBinContent(5,0.0184592);
-  TCHEL_SFb_errors->SetBinContent(6,0.0106444);
-  TCHEL_SFb_errors->SetBinContent(7,0.011073);
-  TCHEL_SFb_errors->SetBinContent(8,0.0106296);
-  TCHEL_SFb_errors->SetBinContent(9,0.0175259);
+  TCHEL_SFb_errors = new TH1D("TCHEL_SFb_errors", "TCHEL_SFb_errors", 14, PtBins_b);
+  TCHEL_SFb_errors->SetBinContent( 0,0.12);
+  TCHEL_SFb_errors->SetBinContent( 1,0.0244956);
+  TCHEL_SFb_errors->SetBinContent( 2,0.0237293);
+  TCHEL_SFb_errors->SetBinContent( 3,0.0180131);
+  TCHEL_SFb_errors->SetBinContent( 4,0.0182411);
+  TCHEL_SFb_errors->SetBinContent( 5,0.0184592);
+  TCHEL_SFb_errors->SetBinContent( 6,0.0106444);
+  TCHEL_SFb_errors->SetBinContent( 7,0.011073);
+  TCHEL_SFb_errors->SetBinContent( 8,0.0106296);
+  TCHEL_SFb_errors->SetBinContent( 9,0.0175259);
   TCHEL_SFb_errors->SetBinContent(10,0.0161566);
   TCHEL_SFb_errors->SetBinContent(11,0.0158973);
   TCHEL_SFb_errors->SetBinContent(12,0.0186782);
   TCHEL_SFb_errors->SetBinContent(13,0.0371113);
   TCHEL_SFb_errors->SetBinContent(14,0.0289788);
-  TCHEL_SFb_errors->SetBinContent(15,2*0.0289788);
+  TCHEL_SFb_errors->SetBinContent(15,(2*0.0289788));
   
-  TCHEL_SFl_0to2p4 = new TF1("TCHEL_SFl_0to2p4","(1.10649*((1+(-9.00297e-05*x))+(2.32185e-07*(x*x))))+(-4.04925e-10*(x*(x*(x/(1+(-0.00051036*x))))))", 20.,670.);
-  TCHEL_SFl_0to0p5 = new TF1("TCHEL_SFl_0to0p5","(1.13615*((1+(-0.00119852*x))+(1.17888e-05*(x*x))))+(-9.8581e-08*(x*(x*(x/(1+(0.00689317*x))))))", 20.,670.);
+  TCHEL_SFl_0to2p4 =   new TF1("TCHEL_SFl_0to2p4","(1.10649*((1+(-9.00297e-05*x))+(2.32185e-07*(x*x))))+(-4.04925e-10*(x*(x*(x/(1+(-0.00051036*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5 =   new TF1("TCHEL_SFl_0to0p5","(1.13615*((1+(-0.00119852*x))+(1.17888e-05*(x*x))))+(-9.8581e-08*(x*(x*(x/(1+(0.00689317*x))))))", 20.,670.);
   TCHEL_SFl_0p5to1p0 = new TF1("TCHEL_SFl_0p5to1p0","(1.13277*((1+(-0.00084146*x))+(3.80313e-06*(x*x))))+(-8.75061e-09*(x*(x*(x/(1+(0.00118695*x))))))", 20.,670.);
   TCHEL_SFl_1p0to1p5 = new TF1("TCHEL_SFl_1p0to1p5","(1.17163*((1+(-0.000828475*x))+(3.0769e-06*(x*x))))+(-4.692e-09*(x*(x*(x/(1+(0.000337759*x))))))", 20.,670.);
   TCHEL_SFl_1p5to2p4 = new TF1("TCHEL_SFl_1p5to2p4","(1.14554*((1+(-0.000128043*x))+(4.10899e-07*(x*x))))+(-2.07565e-10*(x*(x*(x/(1+(-0.00118618*x))))))", 20.,670.);
 
-  TCHEL_SFl_0to2p4_min = new TF1("TCHEL_SFl_0to2p4_min","(1.01541*((1+(-6.04627e-05*x))+(1.38195e-07*(x*x))))+(-2.83043e-10*(x*(x*(x/(1+(-0.000633609*x))))))", 20.,670.);
-  TCHEL_SFl_0to0p5_min = new TF1("TCHEL_SFl_0to0p5_min","(1.0369*((1+(-0.000945578*x))+(7.73273e-06*(x*x))))+(-4.47791e-08*(x*(x*(x/(1+(0.00499343*x))))))", 20.,670.);
+  TCHEL_SFl_0to2p4_min =   new TF1("TCHEL_SFl_0to2p4_min","(1.01541*((1+(-6.04627e-05*x))+(1.38195e-07*(x*x))))+(-2.83043e-10*(x*(x*(x/(1+(-0.000633609*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5_min =   new TF1("TCHEL_SFl_0to0p5_min","(1.0369*((1+(-0.000945578*x))+(7.73273e-06*(x*x))))+(-4.47791e-08*(x*(x*(x/(1+(0.00499343*x))))))", 20.,670.);
   TCHEL_SFl_0p5to1p0_min = new TF1("TCHEL_SFl_0p5to1p0_min","(0.983748*((1+(7.13613e-05*x))+(-1.08648e-05*(x*x))))+(2.96162e-06*(x*(x*(x/(1+(0.282104*x))))))", 20.,670.);
   TCHEL_SFl_1p0to1p5_min = new TF1("TCHEL_SFl_1p0to1p5_min","(1.0698*((1+(-0.000731877*x))+(2.56922e-06*(x*x))))+(-3.0318e-09*(x*(x*(x/(1+(5.04118e-05*x))))))", 20.,670.);
   TCHEL_SFl_1p5to2p4_min = new TF1("TCHEL_SFl_1p5to2p4_min","(1.04766*((1+(-6.87499e-05*x))+(2.2454e-07*(x*x))))+(-1.18395e-10*(x*(x*(x/(1+(-0.00128734*x))))))", 20.,670.);
 
-  TCHEL_SFl_0to2p4_max = new TF1("TCHEL_SFl_0to2p4_max","(1.19751*((1+(-0.000114197*x))+(3.08558e-07*(x*x))))+(-5.27598e-10*(x*(x*(x/(1+(-0.000422372*x))))))", 20.,670.);
-  TCHEL_SFl_0to0p5_max = new TF1("TCHEL_SFl_0to0p5_max","(1.22179*((1+(-0.000946228*x))+(7.37821e-06*(x*x))))+(-4.8451e-08*(x*(x*(x/(1+(0.0047976*x))))))", 20.,670.);
+  TCHEL_SFl_0to2p4_max =   new TF1("TCHEL_SFl_0to2p4_max","(1.19751*((1+(-0.000114197*x))+(3.08558e-07*(x*x))))+(-5.27598e-10*(x*(x*(x/(1+(-0.000422372*x))))))", 20.,670.);
+  TCHEL_SFl_0to0p5_max =   new TF1("TCHEL_SFl_0to0p5_max","(1.22179*((1+(-0.000946228*x))+(7.37821e-06*(x*x))))+(-4.8451e-08*(x*(x*(x/(1+(0.0047976*x))))))", 20.,670.);
   TCHEL_SFl_0p5to1p0_max = new TF1("TCHEL_SFl_0p5to1p0_max","(1.22714*((1+(-0.00085562*x))+(3.74425e-06*(x*x))))+(-8.91028e-09*(x*(x*(x/(1+(0.00109346*x))))))", 20.,670.);
   TCHEL_SFl_1p0to1p5_max = new TF1("TCHEL_SFl_1p0to1p5_max","(1.27351*((1+(-0.000911891*x))+(3.5465e-06*(x*x))))+(-6.69625e-09*(x*(x*(x/(1+(0.000590847*x))))))", 20.,670.);
   TCHEL_SFl_1p5to2p4_max = new TF1("TCHEL_SFl_1p5to2p4_max","(1.24367*((1+(-0.000182494*x))+(5.92637e-07*(x*x))))+(-3.3745e-10*(x*(x*(x/(1+(-0.00107694*x))))))", 20.,670.);
+
+  // CSVL
+  CSVL_SFb_0to2p4 = new TF1("CSVL_SFb_0to2p4","1.02658*((1.+(0.0195388*x))/(1.+(0.0209145*x)))", 30.,670.);
+
+  CSVL_SFb_errors = new TH1D("CSVL_SFb_errors", "CSVL_SFb_errors", 14, PtBins_b);
+  CSVL_SFb_errors->SetBinContent( 0,0.12);
+  CSVL_SFb_errors->SetBinContent( 1,0.0188743);
+  CSVL_SFb_errors->SetBinContent( 2,0.0161816);
+  CSVL_SFb_errors->SetBinContent( 3,0.0139824);
+  CSVL_SFb_errors->SetBinContent( 4,0.0152644);
+  CSVL_SFb_errors->SetBinContent( 5,0.0161226);
+  CSVL_SFb_errors->SetBinContent( 6,0.0157396);
+  CSVL_SFb_errors->SetBinContent( 7,0.0161619);
+  CSVL_SFb_errors->SetBinContent( 8,0.0168747);
+  CSVL_SFb_errors->SetBinContent( 9,0.0257175);
+  CSVL_SFb_errors->SetBinContent(10,0.026424);
+  CSVL_SFb_errors->SetBinContent(11,0.0264928);
+  CSVL_SFb_errors->SetBinContent(12,0.0315127);
+  CSVL_SFb_errors->SetBinContent(13,0.030734);
+  CSVL_SFb_errors->SetBinContent(14,0.0438259);
+  CSVL_SFb_errors->SetBinContent(15,(2*0.0438259));
+
+  CSVL_SFl_0to2p4 =   new TF1("CSVL_SFl_0to2p4","((1.0344+(0.000962994*x))+(-3.65392e-06*(x*x)))+(3.23525e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0to0p5 =   new TF1("CSVL_SFl_0to0p5","((1.07536+(0.000175506*x))+(-8.63317e-07*(x*x)))+(3.27516e-10*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0p5to1p0 = new TF1("CSVL_SFl_0p5to1p0","((1.07846+(0.00032458*x))+(-1.30258e-06*(x*x)))+(8.50608e-10*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p0to1p5 = new TF1("CSVL_SFl_1p0to1p5","((1.08294+(0.000474818*x))+(-1.43857e-06*(x*x)))+(1.13308e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p5to2p4 = new TF1("CSVL_SFl_1p5to2p4","((1.0617+(0.000173654*x))+(-5.29009e-07*(x*x)))+(5.55931e-10*(x*(x*x)))", 20.,670.);
+
+  CSVL_SFl_0to2p4_min =   new TF1("CSVL_SFl_0to2p4_min","((0.956023+(0.000825106*x))+(-3.18828e-06*(x*x)))+(2.81787e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0to0p5_min =   new TF1("CSVL_SFl_0to0p5_min","((0.994425+(-8.66392e-05*x))+(-3.03813e-08*(x*x)))+(-3.52151e-10*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0p5to1p0_min = new TF1("CSVL_SFl_0p5to1p0_min","((0.998088+(6.94916e-05*x))+(-4.82731e-07*(x*x)))+(1.63506e-10*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p0to1p5_min = new TF1("CSVL_SFl_1p0to1p5_min","((1.00294+(0.000289844*x))+(-7.9845e-07*(x*x)))+(5.38525e-10*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p5to2p4_min = new TF1("CSVL_SFl_1p5to2p4_min","((0.979816+(0.000138797*x))+(-3.14503e-07*(x*x)))+(2.38124e-10*(x*(x*x)))", 20.,670.);
+
+  CSVL_SFl_0to2p4_max =   new TF1("CSVL_SFl_0to2p4_max","((1.11272+(0.00110104*x))+(-4.11956e-06*(x*x)))+(3.65263e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0to0p5_max =   new TF1("CSVL_SFl_0to0p5_max","((1.15628+(0.000437668*x))+(-1.69625e-06*(x*x)))+(1.00718e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_0p5to1p0_max = new TF1("CSVL_SFl_0p5to1p0_max","((1.15882+(0.000579711*x))+(-2.12243e-06*(x*x)))+(1.53771e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p0to1p5_max = new TF1("CSVL_SFl_1p0to1p5_max","((1.16292+(0.000659848*x))+(-2.07868e-06*(x*x)))+(1.72763e-09*(x*(x*x)))", 20.,670.);
+  CSVL_SFl_1p5to2p4_max = new TF1("CSVL_SFl_1p5to2p4_max","((1.14357+(0.00020854*x))+(-7.43519e-07*(x*x)))+(8.73742e-10*(x*(x*x)))", 20.,670.);
+
+  // CSVM
+  CSVM_SFb_0to2p4 = new TF1("CSVM_SFb_0to2p4","0.6981*((1.+(0.414063*x))/(1.+(0.300155*x)))", 30.,670.);
+
+  CSVM_SFb_errors = new TH1D("CSVM_SFb_errors", "CSVM_SFb_errors", 14, PtBins_b);
+  CSVM_SFb_errors->SetBinContent( 0,0.12);
+  CSVM_SFb_errors->SetBinContent( 1,0.0295675);
+  CSVM_SFb_errors->SetBinContent( 2,0.0295095);
+  CSVM_SFb_errors->SetBinContent( 3,0.0210867);
+  CSVM_SFb_errors->SetBinContent( 4,0.0219349);
+  CSVM_SFb_errors->SetBinContent( 5,0.0227033);
+  CSVM_SFb_errors->SetBinContent( 6,0.0204062);
+  CSVM_SFb_errors->SetBinContent( 7,0.0185857);
+  CSVM_SFb_errors->SetBinContent( 8,0.0256242);
+  CSVM_SFb_errors->SetBinContent( 9,0.0383341);
+  CSVM_SFb_errors->SetBinContent(10,0.0409675);
+  CSVM_SFb_errors->SetBinContent(11,0.0420284);
+  CSVM_SFb_errors->SetBinContent(12,0.0541299);
+  CSVM_SFb_errors->SetBinContent(13,0.0578761);
+  CSVM_SFb_errors->SetBinContent(14,0.0655432);
+  CSVM_SFb_errors->SetBinContent(15,(2*0.0655432));
+
+  CSVM_SFl_0to2p4 =   new TF1("CSVM_SFl_0to2p4","((1.04318+(0.000848162*x))+(-2.5795e-06*(x*x)))+(1.64156e-09*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0to0p8 =   new TF1("CSVM_SFl_0to0p8","((1.06182+(0.000617034*x))+(-1.5732e-06*(x*x)))+(3.02909e-10*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0p8to1p6 = new TF1("CSVM_SFl_0p8to1p6","((1.111+(-9.64191e-06*x))+(1.80811e-07*(x*x)))+(-5.44868e-10*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_1p6to2p4 = new TF1("CSVM_SFl_1p6to2p4","((1.08498+(-0.000701422*x))+(3.43612e-06*(x*x)))+(-4.11794e-09*(x*(x*x)))", 20.,670.);
+
+  CSVM_SFl_0to2p4_min =   new TF1("CSVM_SFl_0to2p4_min","((0.962627+(0.000448344*x))+(-1.25579e-06*(x*x)))+(4.82283e-10*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0to0p8_min =   new TF1("CSVM_SFl_0to0p8_min","((0.972455+(7.51396e-06*x))+(4.91857e-07*(x*x)))+(-1.47661e-09*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0p8to1p6_min = new TF1("CSVM_SFl_0p8to1p6_min","((1.02055+(-0.000378856*x))+(1.49029e-06*(x*x)))+(-1.74966e-09*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_1p6to2p4_min = new TF1("CSVM_SFl_1p6to2p4_min","((0.983476+(-0.000607242*x))+(3.17997e-06*(x*x)))+(-4.01242e-09*(x*(x*x)))", 20.,670.);
+
+  CSVM_SFl_0to2p4_max =   new TF1("CSVM_SFl_0to2p4_max","((1.12368+(0.00124806*x))+(-3.9032e-06*(x*x)))+(2.80083e-09*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0to0p8_max =   new TF1("CSVM_SFl_0to0p8_max","((1.15116+(0.00122657*x))+(-3.63826e-06*(x*x)))+(2.08242e-09*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_0p8to1p6_max = new TF1("CSVM_SFl_0p8to1p6_max","((1.20146+(0.000359543*x))+(-1.12866e-06*(x*x)))+(6.59918e-10*(x*(x*x)))", 20.,670.);
+  CSVM_SFl_1p6to2p4_max = new TF1("CSVM_SFl_1p6to2p4_max","((1.18654+(-0.000795808*x))+(3.69226e-06*(x*x)))+(-4.22347e-09*(x*(x*x)))", 20.,670.);
 }
 
 // ------------ method that initializes the BTagScaleFactorCalculator class  ------------
 void
-BTagScaleFactorCalculator::init(const double SF_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl)
+BTagScaleFactorCalculator::init(const double SFb_shift, const double SFl_shift, const double TCHEL_SFb, const double TCHEL_SFl, const double TCHPT_SFb, const double TCHPT_SFl, const double SSVHPT_SFb, const double SSVHPT_SFl)
 {
-  SF_shift_ = SF_shift; 
+  SFb_shift_ = SFb_shift;
+  SFl_shift_ = SFl_shift;
   TCHEL_SFb_ = TCHEL_SFb;
   TCHEL_SFl_ = TCHEL_SFl;
   TCHPT_SFb_ = TCHPT_SFb;
@@ -706,14 +878,14 @@ BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const int btagger
   if( partonFlavor==5 || partonFlavor==4 )
   {
     if(btagger==0)      return TCHEL_SFb_;
-    else if(btagger==3) return TCHPT_SFb_;
+    else if(btagger==2) return TCHPT_SFb_;
     else if(btagger==4) return SSVHPT_SFb_;
     else                return 1.;
   }
   else
   {
     if(btagger==0)      return TCHEL_SFl_;
-    else if(btagger==3) return TCHPT_SFl_;
+    else if(btagger==2) return TCHPT_SFl_;
     else if(btagger==4) return SSVHPT_SFl_;
     else                return 1.;
   }
@@ -726,18 +898,24 @@ BTagScaleFactorCalculator::scaleFactor(const int partonFlavor, const double jetP
 {
   if( partonFlavor==5 )
   {
-    if(btagger==0)  return scaleFactorB_TCHEL(jetPt,jetEta);
-    else            return 1.;
+    if(btagger==0)      return scaleFactorB_TCHEL(jetPt,jetEta);
+    else if(btagger==8) return scaleFactorB_CSVL(jetPt,jetEta);
+    else if(btagger==9) return scaleFactorB_CSVM(jetPt,jetEta);
+    else                return 1.;
   }
   else if( partonFlavor==4 )
   {
-    if(btagger==0)  return scaleFactorC_TCHEL(jetPt,jetEta);
-    else            return 1.;
+    if(btagger==0)      return scaleFactorC_TCHEL(jetPt,jetEta);
+    else if(btagger==8) return scaleFactorC_CSVL(jetPt,jetEta);
+    else if(btagger==9) return scaleFactorC_CSVM(jetPt,jetEta);
+    else                return 1.;
   }
   else
   {
-    if(btagger==0)  return scaleFactorUDSG_TCHEL(jetPt,jetEta);
-    else            return 1.;
+    if(btagger==0)      return scaleFactorUDSG_TCHEL(jetPt,jetEta);
+    else if(btagger==8) return scaleFactorUDSG_CSVL(jetPt,jetEta);
+    else if(btagger==9) return scaleFactorUDSG_CSVM(jetPt,jetEta);
+    else                return 1.;
   }
 }
 
@@ -750,13 +928,7 @@ BTagScaleFactorCalculator::scaleFactorB_TCHEL(const double jetPt, const double j
   if(Pt<30) Pt = 30;
   if(Pt>670) Pt = 670;
 
-  if( SF_shift_ > 0. )
-    return TCHEL_SFb_0to2p4->Eval(Pt) + TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
-  else if( SF_shift_ < 0. )
-    return TCHEL_SFb_0to2p4->Eval(Pt) - TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
-  else
-    return TCHEL_SFb_0to2p4->Eval(Pt);
-
+  return TCHEL_SFb_0to2p4->Eval(Pt) + SFb_shift_*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
 }
 
 // ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for c-jets and TCHEL tagger  ------------
@@ -768,13 +940,7 @@ BTagScaleFactorCalculator::scaleFactorC_TCHEL(const double jetPt, const double j
   if(Pt<30) Pt = 30;
   if(Pt>670) Pt = 670;
 
-  if( SF_shift_ > 0. )
-    return TCHEL_SFb_0to2p4->Eval(Pt) + 2*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
-  else if( SF_shift_ < 0. )
-    return TCHEL_SFb_0to2p4->Eval(Pt) - 2*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
-  else
-    return TCHEL_SFb_0to2p4->Eval(Pt);
-
+  return TCHEL_SFb_0to2p4->Eval(Pt) + 2*SFb_shift_*TCHEL_SFb_errors->GetBinContent(TCHEL_SFb_errors->GetXaxis()->FindBin(jetPt));
 }
 
 // ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for light flavor jets and TCHEL tagger ------------
@@ -783,59 +949,127 @@ BTagScaleFactorCalculator::scaleFactorUDSG_TCHEL(const double jetPt, const doubl
 {
   double SF = 1.;
   double Pt = jetPt;
-  double eta = fabs(jetEta);
+  double absEta = fabs(jetEta);
   // for scale factor extrapolation
   if(Pt<20) Pt = 20;
 
-  if( SF_shift_ > 0. )
-  {
-    if( Pt>670 )
-      SF = (TCHEL_SFl_0to2p4->Eval(670) + 2*(TCHEL_SFl_0to2p4_max->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)));
-    else
-    {
-      if(eta<0.5)
-        SF = TCHEL_SFl_0to0p5_max->Eval(Pt);
-      else if(eta>=0.5 && eta<1.)
-        SF = TCHEL_SFl_0p5to1p0_max->Eval(Pt);
-      else if(eta>=1. && eta<1.5)
-        SF = TCHEL_SFl_1p0to1p5_max->Eval(Pt);
-      else
-        SF = TCHEL_SFl_1p5to2p4_max->Eval(Pt);
-    }
-  }
-  else if( SF_shift_ < 0. )
-  {
-    if( Pt>670 )
-      SF = (TCHEL_SFl_0to2p4->Eval(670) + 2*(TCHEL_SFl_0to2p4_min->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)));
-    else
-    {
-      if(eta<0.5)
-        SF = TCHEL_SFl_0to0p5_min->Eval(Pt);
-      else if(eta>=0.5 && eta<1.)
-        SF = TCHEL_SFl_0p5to1p0_min->Eval(Pt);
-      else if(eta>=1. && eta<1.5)
-        SF = TCHEL_SFl_1p0to1p5_min->Eval(Pt);
-      else
-        SF = TCHEL_SFl_1p5to2p4_min->Eval(Pt);
-    }
-  }
+  
+  if( Pt>670 )
+    SF = TCHEL_SFl_0to2p4->Eval(670) + 2*fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (TCHEL_SFl_0to2p4_max->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)) : (TCHEL_SFl_0to2p4_min->Eval(670) - TCHEL_SFl_0to2p4->Eval(670)) );
   else
   {
-    if( Pt>670 )
-      SF = TCHEL_SFl_0to2p4->Eval(670);
+    if(absEta<0.5)
+      SF = TCHEL_SFl_0to0p5->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (TCHEL_SFl_0to0p5_max->Eval(Pt) - TCHEL_SFl_0to0p5->Eval(Pt)) : (TCHEL_SFl_0to0p5_min->Eval(Pt) - TCHEL_SFl_0to0p5->Eval(Pt)) );
+    else if(absEta>=0.5 && absEta<1.)
+      SF = TCHEL_SFl_0p5to1p0->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (TCHEL_SFl_0p5to1p0_max->Eval(Pt) - TCHEL_SFl_0p5to1p0->Eval(Pt)) : (TCHEL_SFl_0p5to1p0_min->Eval(Pt) - TCHEL_SFl_0p5to1p0->Eval(Pt)) );
+    else if(absEta>=1. && absEta<1.5)
+      SF = TCHEL_SFl_1p0to1p5->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (TCHEL_SFl_1p0to1p5_max->Eval(Pt) - TCHEL_SFl_1p0to1p5->Eval(Pt)) : (TCHEL_SFl_1p0to1p5_min->Eval(Pt) - TCHEL_SFl_1p0to1p5->Eval(Pt)) );
     else
-    {
-      if(eta<0.5)
-        SF = TCHEL_SFl_0to0p5->Eval(Pt);
-      else if(eta>=0.5 && eta<1.)
-        SF = TCHEL_SFl_0p5to1p0->Eval(Pt);
-      else if(eta>=1. && eta<1.5)
-        SF = TCHEL_SFl_1p0to1p5->Eval(Pt);
-      else
-        SF = TCHEL_SFl_1p5to2p4->Eval(Pt);
-    }
+      SF = TCHEL_SFl_1p5to2p4->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (TCHEL_SFl_1p5to2p4_max->Eval(Pt) - TCHEL_SFl_1p5to2p4->Eval(Pt)) : (TCHEL_SFl_1p5to2p4_min->Eval(Pt) - TCHEL_SFl_1p5to2p4->Eval(Pt)) );
   }
   
+  return SF;
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b-jets and CSVL tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorB_CSVL(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return CSVL_SFb_0to2p4->Eval(Pt) + SFb_shift_*CSVL_SFb_errors->GetBinContent(CSVL_SFb_errors->GetXaxis()->FindBin(jetPt));
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for c-jets and CSVL tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorC_CSVL(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return CSVL_SFb_0to2p4->Eval(Pt) + 2*SFb_shift_*CSVL_SFb_errors->GetBinContent(CSVL_SFb_errors->GetXaxis()->FindBin(jetPt));
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for light flavor jets and CSVL tagger ------------
+double
+BTagScaleFactorCalculator::scaleFactorUDSG_CSVL(const double jetPt, const double jetEta)
+{
+  double SF = 1.;
+  double Pt = jetPt;
+  double absEta = fabs(jetEta);
+  // for scale factor extrapolation
+  if(Pt<20) Pt = 20;
+
+
+  if( Pt>670 )
+    SF = CSVL_SFl_0to2p4->Eval(670) + 2*fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVL_SFl_0to2p4_max->Eval(670) - CSVL_SFl_0to2p4->Eval(670)) : (CSVL_SFl_0to2p4_min->Eval(670) - CSVL_SFl_0to2p4->Eval(670)) );
+  else
+  {
+    if(absEta<0.5)
+      SF = CSVL_SFl_0to0p5->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVL_SFl_0to0p5_max->Eval(Pt) - CSVL_SFl_0to0p5->Eval(Pt)) : (CSVL_SFl_0to0p5_min->Eval(Pt) - CSVL_SFl_0to0p5->Eval(Pt)) );
+    else if(absEta>=0.5 && absEta<1.)
+      SF = CSVL_SFl_0p5to1p0->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVL_SFl_0p5to1p0_max->Eval(Pt) - CSVL_SFl_0p5to1p0->Eval(Pt)) : (CSVL_SFl_0p5to1p0_min->Eval(Pt) - CSVL_SFl_0p5to1p0->Eval(Pt)) );
+    else if(absEta>=1. && absEta<1.5)
+      SF = CSVL_SFl_1p0to1p5->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVL_SFl_1p0to1p5_max->Eval(Pt) - CSVL_SFl_1p0to1p5->Eval(Pt)) : (CSVL_SFl_1p0to1p5_min->Eval(Pt) - CSVL_SFl_1p0to1p5->Eval(Pt)) );
+    else
+      SF = CSVL_SFl_1p5to2p4->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVL_SFl_1p5to2p4_max->Eval(Pt) - CSVL_SFl_1p5to2p4->Eval(Pt)) : (CSVL_SFl_1p5to2p4_min->Eval(Pt) - CSVL_SFl_1p5to2p4->Eval(Pt)) );
+  }
+
+  return SF;
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for b-jets and CSVM tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorB_CSVM(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return CSVM_SFb_0to2p4->Eval(Pt) + SFb_shift_*CSVM_SFb_errors->GetBinContent(CSVM_SFb_errors->GetXaxis()->FindBin(jetPt));
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for c-jets and CSVM tagger  ------------
+double
+BTagScaleFactorCalculator::scaleFactorC_CSVM(const double jetPt, const double jetEta)
+{
+  double Pt = jetPt;
+  // for scale factor extrapolation
+  if(Pt<30) Pt = 30;
+  if(Pt>670) Pt = 670;
+
+  return CSVM_SFb_0to2p4->Eval(Pt) + 2*SFb_shift_*CSVM_SFb_errors->GetBinContent(CSVM_SFb_errors->GetXaxis()->FindBin(jetPt));
+}
+
+// ------------ method that returns pT- and eta-dependent b-tag efficiency scale factor for light flavor jets and CSVM tagger ------------
+double
+BTagScaleFactorCalculator::scaleFactorUDSG_CSVM(const double jetPt, const double jetEta)
+{
+  double SF = 1.;
+  double Pt = jetPt;
+  double absEta = fabs(jetEta);
+  // for scale factor extrapolation
+  if(Pt<20) Pt = 20;
+
+
+  if( Pt>670 )
+    SF = CSVM_SFl_0to2p4->Eval(670) + 2*fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVM_SFl_0to2p4_max->Eval(670) - CSVM_SFl_0to2p4->Eval(670)) : (CSVM_SFl_0to2p4_min->Eval(670) - CSVM_SFl_0to2p4->Eval(670)) );
+  else
+  {
+    if(absEta<0.8)
+      SF = CSVM_SFl_0to0p8->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVM_SFl_0to0p8_max->Eval(Pt) - CSVM_SFl_0to0p8->Eval(Pt)) : (CSVM_SFl_0to0p8_min->Eval(Pt) - CSVM_SFl_0to0p8->Eval(Pt)) );
+    else if(absEta>=0.8 && absEta<1.6)
+      SF = CSVM_SFl_0p8to1p6->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVM_SFl_0p8to1p6_max->Eval(Pt) - CSVM_SFl_0p8to1p6->Eval(Pt)) : (CSVM_SFl_0p8to1p6_min->Eval(Pt) - CSVM_SFl_0p8to1p6->Eval(Pt)) );
+    else
+      SF = CSVM_SFl_1p6to2p4->Eval(Pt) + fabs(SFl_shift_)*( SFl_shift_ >= 0. ? (CSVM_SFl_1p6to2p4_max->Eval(Pt) - CSVM_SFl_1p6to2p4->Eval(Pt)) : (CSVM_SFl_1p6to2p4_min->Eval(Pt) - CSVM_SFl_1p6to2p4->Eval(Pt)) );
+  }
+
   return SF;
 }
 

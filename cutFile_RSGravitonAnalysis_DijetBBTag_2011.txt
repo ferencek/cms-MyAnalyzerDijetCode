@@ -27,10 +27,11 @@ TCHPT_SFb                       0.93            -               -               
 TCHPT_SFl                       1.2             -               -               -               -1
 SSVHPT_SFb                      0.95            -               -               -               -1
 SSVHPT_SFl                      0.98            -               -               -               -1
-# shift in scale factors (0: no shift, >0; positive, <0: negative)
-SF_Shift                        0               -               -               -               -1
+# shift in scale factors (in units of the SF uncertainty) (0: no shift, >0; positive, <0: negative)
+SFb_Shift                       0               -               -               -               -1
+SFl_Shift                       0               -               -               -               -1
 # select b-tagger (0: TCHEL, 1: TCHEM, 2: TCHPT, 3: SSVHEM, 4: SSVHPT, 5: JPL, 6: JPM, 7: JPT, 8: CSVL, 9: CSVM, 10: CSVT)
-btagger                         0               -               -               -               -1
+btagger                         9               -               -               -               -1
 # b-tag working points
 # TCHE
 TCHEL_WP                        1.7             -               -               -               -1
