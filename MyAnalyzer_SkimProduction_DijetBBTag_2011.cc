@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.2 2012/01/10 00:43:38 ferencek Exp $
+// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.3 2012/03/13 01:13:52 ferencek Exp $
 //
 //
 
@@ -150,8 +150,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
    edm::Handle<vector<double> > PFJetE;
    iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
-   edm::Handle<vector<int> > PFJetPassJetID;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
 
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
@@ -160,12 +158,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
      fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
    }
    if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
      fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
