@@ -31,7 +31,7 @@ SSVHPT_SFl                      0.98            -               -               
 SFb_Shift                       0               -               -               -               -1
 SFl_Shift                       0               -               -               -               -1
 # select b-tagger (0: TCHEL, 1: TCHEM, 2: TCHPT, 3: SSVHEM, 4: SSVHPT, 5: JPL, 6: JPM, 7: JPT, 8: CSVL, 9: CSVM, 10: CSVT)
-btagger                         9               -               -               -               -1
+btagger                         8               -               -               -               -1
 # b-tag working points
 # TCHE
 TCHEL_WP                        1.7             -               -               -               -1
@@ -58,8 +58,6 @@ matchingType                    0               -               -               
 matchingRadius                  0.4             -               -               -               -1
 # shift in jet energy scale (in units of the JES uncertainty)
 JES_Shift                       0               -               -               -               -1
-# resonance mass
-resonanceMass                   3500            -               -               -               -1
 #
 #
 #--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
@@ -83,7 +81,7 @@ nJets                 1             +inf                 -             -        
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
 absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
-PassHBHENoiseFilter   0             1                    -             -               4       2   -0.5 1.5
+PassHBHENoiseFilter   -inf          +inf                 -             -               4       2   -0.5 1.5
 passJetIdJ1           0             1                    -             -               4       2   -0.5 1.5
 passJetIdJ2           0             1                    -             -               4       2   -0.5 1.5
 PhiJ1                 -inf          +inf                 -             -               4       200 -3.15 3.15
@@ -110,7 +108,11 @@ PtJ1_bbbar            -inf          +inf                 -             -        
 PtJ2_bbbar            -inf          +inf                 -             -               6       6000 0   6000
 METoSumET_bbbar       -inf          +inf                 -             -               6       100  0   1
 DijetMass_bbbar       -inf          +inf                 -             -               6       6000 0   6000
-x_bbbar               -inf          +inf                 -             -               6       50   0.3 1.3
+x_dist_500            -inf          +inf                 -             -               6       50   0.3 1.3
+x_dist_700            -inf          +inf                 -             -               6       50   0.3 1.3
+x_dist_1200           -inf          +inf                 -             -               6       50   0.3 1.3
+x_dist_2000           -inf          +inf                 -             -               6       50   0.3 1.3
+x_dist_3500           -inf          +inf                 -             -               6       50   0.3 1.3
 #
 #
 #

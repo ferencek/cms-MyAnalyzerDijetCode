@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.6 2012/03/13 01:13:52 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.7 2012/03/15 18:21:23 ferencek Exp $
 //
 //
 
@@ -273,7 +273,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int doPUReweighting = int(getPreCutValue1("doPUReweighting"));
    int doSFReweighting = int(getPreCutValue1("doSFReweighting"));
    int useFixedSFs = int(getPreCutValue1("useFixedSFs"));
-   double resonanceMass = getPreCutValue1("resonanceMass");
    int btagger = int(getPreCutValue1("btagger"));
    int matchingType = int(getPreCutValue1("matchingType"));
    double matchingRadius = getPreCutValue1("matchingRadius");
@@ -538,7 +537,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      fillVariableWithValue( "DijetMass_qqbar", getVariableValue("DijetMass"), eventWeight );
      fillVariableWithValue( "DijetMass_bbbar", getVariableValue("DijetMass"), eventWeight );
-     fillVariableWithValue( "x_bbbar", (getVariableValue("DijetMass")/resonanceMass), eventWeight );
+     fillVariableWithValue( "x_dist_500", (getVariableValue("DijetMass")/500.), eventWeight );
+     fillVariableWithValue( "x_dist_700", (getVariableValue("DijetMass")/700.), eventWeight );
+     fillVariableWithValue( "x_dist_1200", (getVariableValue("DijetMass")/1200.), eventWeight );
+     fillVariableWithValue( "x_dist_2000", (getVariableValue("DijetMass")/2000.), eventWeight );
+     fillVariableWithValue( "x_dist_3500", (getVariableValue("DijetMass")/3500.), eventWeight );
    }
    
    // Evaluate cuts (but do not apply them)
