@@ -28,11 +28,11 @@ TCHPT_SFl                       1.2             -               -               
 SSVHPT_SFb                      0.95            -               -               -               -1
 SSVHPT_SFl                      0.98            -               -               -               -1
 # turn on/off heavy flavor k-factor
-useHFkFactor                    0               -               -               -               -1
+useHFkFactor                    1               -               -               -               -1
 # heavy flavor k-factor
-HFkFactor                       1.50            -               -               -               -1
+HFkFactor                       1.454           -               -               -               -1
 # heavy flavor fraction
-HFFraction                      0.056567        -               -               -               -1
+HFFraction                      0.0566665       -               -               -               -1
 # shift in scale factors (in units of the SF uncertainty) (0: no shift, >0; positive, <0: negative)
 SFb_Shift                       0               -               -               -               -1
 SFl_Shift                       0               -               -               -               -1
@@ -63,7 +63,7 @@ CSVT_WP                         0.898           -               -               
 matchingType                    0               -               -               -               -1
 matchingRadius                  0.4             -               -               -               -1
 # turn on/off creation of event bin histograms 
-doEventBins                     1               -               -               -               -1
+doEventBins                     0               -               -               -               -1
 # turn on/off event printout
 doEventPrintout                 0               -               -               -               -1
 METoSumET_cut                   0.45            -               -               -               -1
@@ -94,14 +94,14 @@ PassTrackingFailure   -inf          +inf                 -             -        
 PassEcalMskCellDRFlt  -inf          +inf                 -             -               0       2   -0.5 1.5
 PassCaloBndDRFlt      -inf          +inf                 -             -               0       2   -0.5 1.5
 PassEEAnomJetFilter   -inf          +inf                 -             -               0       2   -0.5 1.5
-nJets                  1             +inf                 -             -              1       16  -0.5 15.5
+nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
 PtJ1_cut              -inf          +inf                 -             -               2       6000 0   6000
 PtJ2_cut              -inf          +inf                 -             -               2       6000 0   6000
 absDeltaEtaJ1J2       -inf          1.3                  -             -               3       50   0   5
 DijetMassThreshold    890           +inf                 -             -               4       6000 0   6000
-PassHBHENoiseFilter   0             1                    -             -               5       2   -0.5 1.5
+PassHBHENoiseFilter   -inf          +inf                 -             -               4       2   -0.5 1.5
 passJetIdJ1           0             1                    -             -               5       2   -0.5 1.5
 passJetIdJ2           0             1                    -             -               5       2   -0.5 1.5
 absDeltaPhiJ1J2       -inf          +inf                 -             -               5       100  0   3.15
@@ -117,7 +117,7 @@ PtJ2_pretag           -inf          +inf                 -             -        
 DijetMass_pretag      -inf          +inf                 -             -               5       6000 0   6000
 nMuons_pretag         -inf          +inf                 -             -               5       16  -0.5 15.5
 METoSumET_pretag      -inf          +inf                 -             -               5       100  0   1
-nJets_btag            0             1                    -             -               6       16  -0.5 15.5
+nJets_btag            1             2                    -             -               6       16  -0.5 15.5
 nGoodVertices         -inf          +inf                 -             -               6       41  -0.5 40.5
 PhiJ1                 -inf          +inf                 -             -               6       200 -3.15 3.15
 PhiJ2                 -inf          +inf                 -             -               6       200 -3.15 3.15
