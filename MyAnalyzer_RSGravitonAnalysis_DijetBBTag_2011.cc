@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.7 2012/03/15 18:21:23 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.8 2012/03/27 21:35:37 ferencek Exp $
 //
 //
 
@@ -276,6 +276,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int btagger = int(getPreCutValue1("btagger"));
    int matchingType = int(getPreCutValue1("matchingType"));
    double matchingRadius = getPreCutValue1("matchingRadius");
+   int useWideJets = int(getPreCutValue1("useWideJets"));
    
    // grab necessary objects from the event
    edm::Handle<vector<double> > GenParticlePt;
@@ -318,33 +319,50 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("PFMET:SumET"), SumET);
    
    edm::Handle<vector<double> > PFJetPt_;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt_);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Pt"), PFJetPt_);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt_);
    edm::Handle<vector<double> > PFJetPtRaw;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PtRaw"), PFJetPtRaw);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PtRaw"), PFJetPtRaw);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PtRaw"), PFJetPtRaw);
    edm::Handle<vector<double> > PFJetEta;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Eta"), PFJetEta);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
    edm::Handle<vector<double> > PFJetPhi;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Phi"), PFJetPhi);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
    edm::Handle<vector<double> > PFJetE_;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE_);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Energy"), PFJetE_);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE_);
    edm::Handle<vector<double> > PFJetUnc;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:JECUnc"), PFJetUnc);
-   edm::Handle<vector<int> > PFJetPassJetID;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:JECUnc"), PFJetUnc);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:JECUnc"), PFJetUnc);
+   edm::Handle<vector<int> > PFJetPassLooseID;
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PassLooseID"), PFJetPassLooseID);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PassLooseID"), PFJetPassLooseID);
+   edm::Handle<vector<int> > PFJetPassTightID;
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PassTightID"), PFJetPassTightID);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassTightID);
    edm::Handle<vector<double> > PFJetSSVHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
    edm::Handle<vector<double> > PFJetSSVHP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
    edm::Handle<vector<double> > PFJetTCHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
    edm::Handle<vector<double> > PFJetTCHP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
    edm::Handle<vector<double> > PFJetJP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:JetProbabilityBTag"), PFJetJP);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:JetProbabilityBTag"), PFJetJP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:JetProbabilityBTag"), PFJetJP);
    edm::Handle<vector<double> > PFJetCSV;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
    edm::Handle<vector<int> > PFJetPartonFlavor;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PartonFlavor"), PFJetPartonFlavor);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
 
    // apply pile-up reweighting
    if( !iEvent.isRealData() && doPUReweighting )
@@ -489,51 +507,75 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG, eventWeight );
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG, eventWeight );
 
-   fillVariableWithValue("PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), eventWeight );
+   fillVariableWithValue( "PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), eventWeight );
    
-   fillVariableWithValue("nGoodVertices", v_idx_goodPV.size(), eventWeight );
+   fillVariableWithValue( "nGoodVertices", v_idx_goodPV.size(), eventWeight );
 
-   fillVariableWithValue("METoSumET", MET->front()/SumET->front(), eventWeight );
-   fillVariableWithValue("METoSumET_bbbar", getVariableValue("METoSumET"), eventWeight );
+   fillVariableWithValue( "MET", MET->front(), eventWeight );
+   fillVariableWithValue( "MET_bbbar", getVariableValue("MET"), eventWeight );
+   fillVariableWithValue( "SumET", SumET->front(), eventWeight );
+   fillVariableWithValue( "SumET_bbbar", getVariableValue("SumET"), eventWeight );
+   fillVariableWithValue( "METoSumET", MET->front()/SumET->front(), eventWeight );
+   fillVariableWithValue( "METoSumET_bbbar", getVariableValue("METoSumET"), eventWeight );
    
    fillVariableWithValue( "nJets", PFJetPt->size(), eventWeight );
 
-   if( PFJetPt->size() >= 1 )
-   {
-     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ), eventWeight );
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ), eventWeight );
-     fillVariableWithValue( "PhiJ1", PFJetPhi->at(0), eventWeight );
-     fillVariableWithValue( "EtaJ1", PFJetEta->at(0), eventWeight );
-     fillVariableWithValue( "PtJ1", PFJetPt->at(0), eventWeight );
+   if( PFJetPt->size() >= 2 )
+   {     
+     TLorentzVector dijet, jet1, jet2;
+     jet1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     jet2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
+
+     // wide jets
+     if( useWideJets )
+     {
+       TLorentzVector jet1_ = jet1, jet2_ = jet2, subjet;
+       
+       for(unsigned j=2; j<PFJetPt->size(); ++j)
+       {
+         if( fabs( PFJetEta->at(j) ) > getPreCutValue1("subleadingEtaCut") || !PFJetPassLooseID->at(j) ||
+             PFJetPt->at(j) < getPreCutValue1("subleadingPtCut") ) continue;
+
+         subjet.SetPtEtaPhiE(PFJetPt->at(j),PFJetEta->at(j),PFJetPhi->at(j),PFJetE->at(j));
+
+         double dR1 = subjet.DeltaR(jet1_);
+         double dR2 = subjet.DeltaR(jet2_);
+
+         if (dR1 < getPreCutValue1("wideJetDeltaR") && dR1 < dR2)  jet1 += subjet;
+         if (dR2 < getPreCutValue1("wideJetDeltaR") && dR2 <= dR1) jet2 += subjet;
+       }
+     }
+     
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassTightID->at(0) ? 1 : 0 ), eventWeight );
+     fillVariableWithValue( "absEtaJ1", fabs( jet1.Eta() ), eventWeight );
+     fillVariableWithValue( "PhiJ1", jet1.Phi(), eventWeight );
+     fillVariableWithValue( "EtaJ1", jet1.Eta(), eventWeight );
+     fillVariableWithValue( "PtJ1", jet1.Pt(), eventWeight );
      fillVariableWithValue( "PhiJ1_bbbar", getVariableValue("PhiJ1"), eventWeight );
      fillVariableWithValue( "EtaJ1_bbbar", getVariableValue("EtaJ1"), eventWeight );
      fillVariableWithValue( "PtJ1_bbbar", getVariableValue("PtJ1"), eventWeight );
-   }
-   if( PFJetPt->size() >= 2 )
-   {
-     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ), eventWeight );
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ), eventWeight );
-     fillVariableWithValue( "PhiJ2", PFJetPhi->at(1), eventWeight );
-     fillVariableWithValue( "EtaJ2", PFJetEta->at(1), eventWeight );
-     fillVariableWithValue( "PtJ2", PFJetPt->at(1), eventWeight );
+
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassTightID->at(1) ? 1 : 0 ), eventWeight );
+     fillVariableWithValue( "absEtaJ2", fabs( jet2.Eta() ), eventWeight );
+     fillVariableWithValue( "PhiJ2", jet2.Phi(), eventWeight );
+     fillVariableWithValue( "EtaJ2", jet2.Eta(), eventWeight );
+     fillVariableWithValue( "PtJ2", jet2.Pt(), eventWeight );
      fillVariableWithValue( "PhiJ2_bbbar", getVariableValue("PhiJ2"), eventWeight );
      fillVariableWithValue( "EtaJ2_bbbar", getVariableValue("EtaJ2"), eventWeight );
      fillVariableWithValue( "PtJ2_bbbar", getVariableValue("PtJ2"), eventWeight );
      
-     TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ), eventWeight );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( jet1.Eta() - jet2.Eta() ), eventWeight );
      fillVariableWithValue( "DeltaEtaJ1J2", getVariableValue("absDeltaEtaJ1J2"), eventWeight );
      fillVariableWithValue( "DeltaEtaJ1J2_bbbar", getVariableValue("absDeltaEtaJ1J2"), eventWeight );
 
-     fillVariableWithValue( "DeltaPhiJ1J2", fabs( v_j1.DeltaPhi(v_j2) ), eventWeight );
+     fillVariableWithValue( "DeltaPhiJ1J2", fabs( jet1.DeltaPhi(jet2) ), eventWeight );
      fillVariableWithValue( "DeltaPhiJ1J2_bbbar", getVariableValue("DeltaPhiJ1J2"), eventWeight );
      
-     // calculate M_j1j2
-     v_j1j2 = v_j1 + v_j2;
-     fillVariableWithValue( "DijetMass", v_j1j2.M(), eventWeight );
+     // calculate M_jj
+     dijet = jet1 + jet2;
+     
+     fillVariableWithValue( "DijetMass", dijet.M(), eventWeight );
 
      fillVariableWithValue( "DijetMass_qqbar", getVariableValue("DijetMass"), eventWeight );
      fillVariableWithValue( "DijetMass_bbbar", getVariableValue("DijetMass"), eventWeight );

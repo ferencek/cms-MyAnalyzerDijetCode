@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.3 2012/03/13 01:13:52 ferencek Exp $
+// $Id: MyAnalyzer_SkimProduction_DijetBBTag_2011.cc,v 1.4 2012/03/22 23:06:20 ferencek Exp $
 //
 //
 
@@ -140,38 +140,68 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    //#####################################################################################
    //########################### User's code starts here #################################
+
+   int useWideJets = int(getPreCutValue1("useWideJets"));
    
    // grab necessary objects from the event      
    edm::Handle<vector<double> > PFJetPt;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Pt"), PFJetPt);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt);
    edm::Handle<vector<double> > PFJetEta;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Eta"), PFJetEta);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
    edm::Handle<vector<double> > PFJetPhi;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Phi"), PFJetPhi);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
    edm::Handle<vector<double> > PFJetE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Energy"), PFJetE);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE);
+   edm::Handle<vector<int> > PFJetPassLooseID;
+   if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PassLooseID"), PFJetPassLooseID);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PassLooseID"), PFJetPassLooseID);
 
+   
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
 
    fillVariableWithValue( "nJets", PFJetPt->size() );
 
-   if( PFJetPt->size() >= 1 )
-   {
-     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
-   }
    if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
+     TLorentzVector dijet, jet1, jet2;
+     jet1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
+     jet2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
+
+     // wide jets
+     if( useWideJets )
+     {
+       TLorentzVector jet1_ = jet1, jet2_ = jet2, subjet;
+
+       for(unsigned j=2; j<PFJetPt->size(); ++j)
+       {
+         if( fabs( PFJetEta->at(j) ) > getPreCutValue1("subleadingEtaCut") || !PFJetPassLooseID->at(j) ||
+             PFJetPt->at(j) < getPreCutValue1("subleadingPtCut") ) continue;
+
+         subjet.SetPtEtaPhiE(PFJetPt->at(j),PFJetEta->at(j),PFJetPhi->at(j),PFJetE->at(j));
+
+         double dR1 = subjet.DeltaR(jet1_);
+         double dR2 = subjet.DeltaR(jet2_);
+
+         if (dR1 < getPreCutValue1("wideJetDeltaR") && dR1 < dR2)  jet1 += subjet;
+         if (dR2 < getPreCutValue1("wideJetDeltaR") && dR2 <= dR1) jet2 += subjet;
+       }
+     }
+    
+     fillVariableWithValue( "absEtaJ1", fabs( jet1.Eta() ));
+     fillVariableWithValue( "absEtaJ2", fabs( jet2.Eta() ) );
      
-     TLorentzVector v_j1j2, v_j1, v_j2;
-     v_j1.SetPtEtaPhiE(PFJetPt->at(0),PFJetEta->at(0),PFJetPhi->at(0),PFJetE->at(0));
-     v_j2.SetPtEtaPhiE(PFJetPt->at(1),PFJetEta->at(1),PFJetPhi->at(1),PFJetE->at(1));
      // calculate |DeltaEta(j1,j2)|
-     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( PFJetEta->at(0) - PFJetEta->at(1) ) );
-     // calculate M_j1j2
-     v_j1j2 = v_j1 + v_j2;
-     fillVariableWithValue( "DijetMass800", v_j1j2.M() );
+     fillVariableWithValue( "absDeltaEtaJ1J2", fabs( jet1.Eta() - jet2.Eta() ) );
+     
+     // calculate M_jj
+     dijet = jet1 + jet2;
+     
+     fillVariableWithValue( "DijetMass800", dijet.M() );
    }
 
    // Evaluate cuts (but do not apply them)
