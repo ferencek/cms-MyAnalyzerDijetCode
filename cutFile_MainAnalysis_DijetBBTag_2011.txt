@@ -36,7 +36,7 @@ useHFkFactor                    1               -               -               
 # heavy flavor k-factor (wide jets)
 HFkFactor                       1.411           -               -               -               -1
 # heavy flavor fraction (wide jets)
-HFFraction                      0.0592606       -               -               -               -1
+HFFraction                      0.0592598       -               -               -               -1
 # shift in scale factors (in units of the SF uncertainty) (0: no shift, >0; positive, <0: negative)
 SFb_Shift                       0               -               -               -               -1
 SFl_Shift                       0               -               -               -               -1
@@ -125,8 +125,8 @@ PtJ1_pretag           -inf          +inf                 -             -        
 PtJ2_pretag           -inf          +inf                 -             -               5       6000 0   6000
 DijetMass_pretag      -inf          +inf                 -             -               5       6000 0   6000
 nMuons_pretag         -inf          +inf                 -             -               5       16  -0.5 15.5
-MET_pretag            -inf          +inf                 -             -               5       3000 0   6000
-SumET_pretag          -inf          +inf                 -             -               5       3500 0   7000
+MET_pretag            -inf          +inf                 -             -               5       1200 0   6000
+SumET_pretag          -inf          +inf                 -             -               5       2000 0   10000
 METoSumET_pretag      -inf          +inf                 -             -               5       100  0   1
 nJets_btag            1             2                    -             -               6       16  -0.5 15.5
 nGoodVertices         -inf          +inf                 -             -               6       41  -0.5 40.5
@@ -140,8 +140,8 @@ PtJ1                  -inf          +inf                 -             -        
 PtJ2                  -inf          +inf                 -             -               6       6000 0   6000
 DijetMass             -inf          +inf                 -             -               6       6000 0   6000
 nMuons                -inf          +inf                 -             -               6       16  -0.5 15.5
-MET                   -inf          +inf                 -             -               6       3000 0   6000
-SumET                 -inf          +inf                 -             -               6       3500 0   7000
+MET                   -inf          +inf                 -             -               6       1200 0   6000
+SumET                 -inf          +inf                 -             -               6       2000 0   10000
 METoSumET             -inf          +inf                 -             -               6       100  0   1
 #
 #
