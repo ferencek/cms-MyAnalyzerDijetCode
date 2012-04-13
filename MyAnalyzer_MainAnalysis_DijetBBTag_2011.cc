@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.16 2012/03/22 23:07:58 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.17 2012/03/30 21:00:33 ferencek Exp $
 //
 //
 
@@ -219,6 +219,9 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_J1J2HeavyFlavor;Heavy Flavor;Entries", 2, -0.5, 1.5);
    CreateUserTH1D("h1_nMuons_vs_DijetMass_pretag;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_nMuons_vs_DijetMass;Dijet Mass [GeV];nMuons", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    
    CreateUserTH2D("h2_EtaJ2_vs_EtaJ1;#eta_{1};#eta_{2}", getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"), getHistoNBins("EtaJ1"), getHistoMin("EtaJ1"), getHistoMax("EtaJ1"));
 
@@ -763,14 +766,14 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          
      fillVariableWithValue( "passJetIdJ1", ( PFJetPassTightID->at(0) ? 1 : 0 ), pretagWeight );
      fillVariableWithValue( "PhiJ1_pretag", jet1.Phi(), pretagWeight );
-     fillVariableWithValue( "absEtaJ1", fabs( jet1.Eta() ), pretagWeight );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ), pretagWeight ); // even with wide jets, |eta| cut is still applied to AK5 PF jets
      fillVariableWithValue( "EtaJ1_pretag", jet1.Eta(), pretagWeight );
      fillVariableWithValue( "PtJ1_cut", jet1.Pt(), pretagWeight );
      fillVariableWithValue( "PtJ1_pretag", getVariableValue("PtJ1_cut"), pretagWeight );
 
      fillVariableWithValue( "passJetIdJ2", ( PFJetPassTightID->at(1) ? 1 : 0 ), pretagWeight );
      fillVariableWithValue( "PhiJ2_pretag", jet2.Phi(), pretagWeight );
-     fillVariableWithValue( "absEtaJ2", fabs( jet2.Eta() ), pretagWeight );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ), pretagWeight ); // even with wide jets, |eta| cut is still applied to AK5 PF jets
      fillVariableWithValue( "EtaJ2_pretag", jet2.Eta(), pretagWeight );
      fillVariableWithValue( "PtJ2_cut", jet2.Pt(), pretagWeight );
      fillVariableWithValue( "PtJ2_pretag", getVariableValue("PtJ2_cut"), pretagWeight );
@@ -885,11 +888,27 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if( passedCut("all") ) ret = true;
      }
    }
+
+   if( passedAllPreviousCuts("DijetMass_pretag") )
+   {
+     if( doSFReweighting && !iEvent.isRealData() )
+     {
+       FillUserTH1D("h1_DijetMass_0tag", getVariableValue("DijetMass_pretag"), eventWeight*bTagEventWeight(scaleFactors,0) );
+       FillUserTH1D("h1_DijetMass_1tag", getVariableValue("DijetMass_pretag"), eventWeight*bTagEventWeight(scaleFactors,1) );
+       FillUserTH1D("h1_DijetMass_2tag", getVariableValue("DijetMass_pretag"), eventWeight*bTagEventWeight(scaleFactors,2) );
+     }
+     else
+     {
+       if( nBTaggedJets==0 ) FillUserTH1D("h1_DijetMass_0tag", getVariableValue("DijetMass_pretag"), pretagWeight );
+       if( nBTaggedJets==1 ) FillUserTH1D("h1_DijetMass_1tag", getVariableValue("DijetMass_pretag"), pretagWeight );
+       if( nBTaggedJets==2 ) FillUserTH1D("h1_DijetMass_2tag", getVariableValue("DijetMass_pretag"), pretagWeight );
+     }
+   }
    
    // fill EventBin histograms
    if( doEventBins && passedAllPreviousCuts("DijetMass_pretag") )
    {
-     if( nMuons==0 && max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2"))<1.2 )
+     if( nMuons==0 && max(fabs(getVariableValue("EtaJ1_pretag")),fabs(getVariableValue("EtaJ2_pretag")))<1.2 )
      {
        if( iEvent.isRealData() )
        {
@@ -944,7 +963,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
      }
-     else if( nMuons==0 && max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2"))>=1.2 )
+     else if( nMuons==0 && max(fabs(getVariableValue("EtaJ1_pretag")),fabs(getVariableValue("EtaJ2_pretag")))>=1.2 )
      {
        if( iEvent.isRealData() )
        {
@@ -999,7 +1018,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
      }
-     else if( nMuons>=1 && max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2"))<1.2 )
+     else if( nMuons>=1 && max(fabs(getVariableValue("EtaJ1_pretag")),fabs(getVariableValue("EtaJ2_pretag")))<1.2 )
      {
        if( iEvent.isRealData() )
        {
@@ -1054,7 +1073,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
      }
-     else if( nMuons>=1 && max(getVariableValue("absEtaJ1"),getVariableValue("absEtaJ2"))>=1.2 )
+     else if( nMuons>=1 && max(fabs(getVariableValue("EtaJ1_pretag")),fabs(getVariableValue("EtaJ2_pretag")))>=1.2 )
      {
        if( iEvent.isRealData() )
        {
