@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.8 2012/03/27 21:35:37 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.9 2012/03/30 21:00:33 ferencek Exp $
 //
 //
 
@@ -547,7 +547,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      
      fillVariableWithValue( "passJetIdJ1", ( PFJetPassTightID->at(0) ? 1 : 0 ), eventWeight );
-     fillVariableWithValue( "absEtaJ1", fabs( jet1.Eta() ), eventWeight );
+     fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ), eventWeight ); // even with wide jets, |eta| cut is still applied to AK5 PF jets
      fillVariableWithValue( "PhiJ1", jet1.Phi(), eventWeight );
      fillVariableWithValue( "EtaJ1", jet1.Eta(), eventWeight );
      fillVariableWithValue( "PtJ1", jet1.Pt(), eventWeight );
@@ -556,7 +556,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      fillVariableWithValue( "PtJ1_bbbar", getVariableValue("PtJ1"), eventWeight );
 
      fillVariableWithValue( "passJetIdJ2", ( PFJetPassTightID->at(1) ? 1 : 0 ), eventWeight );
-     fillVariableWithValue( "absEtaJ2", fabs( jet2.Eta() ), eventWeight );
+     fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ), eventWeight ); // even with wide jets, |eta| cut is still applied to AK5 PF jets
      fillVariableWithValue( "PhiJ2", jet2.Phi(), eventWeight );
      fillVariableWithValue( "EtaJ2", jet2.Eta(), eventWeight );
      fillVariableWithValue( "PtJ2", jet2.Pt(), eventWeight );
