@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.9 2012/03/30 21:00:33 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.10 2012/04/13 19:54:58 ferencek Exp $
 //
 //
 
@@ -208,15 +208,19 @@ MyAnalyzer::beginJob()
    //########################### User's code starts here #################################/
    
    // book your histograms here
+   CreateUserTH1D("h1_DijetMass_bbbar;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_bbbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_bbbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_bbbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_ccbar;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_ccbar_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_ccbar_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_ccbar_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_qqbarlight;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_qqbarlight_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_qqbarlight_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_qqbarlight_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+   CreateUserTH1D("h1_DijetMass_gg;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_gg_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_gg_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_gg_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
@@ -593,6 +597,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      if( nSt3_b_fromRSG==2 )
      {
+       FillUserTH1D("h1_DijetMass_bbbar", getVariableValue("DijetMass"), eventWeight );
+      
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_bbbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
@@ -608,6 +614,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      if( nSt3_c_fromRSG==2 )
      {
+       FillUserTH1D("h1_DijetMass_ccbar", getVariableValue("DijetMass"), eventWeight );
+      
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_ccbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
@@ -623,6 +631,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      if( nSt3_q_fromRSG==2 && nSt3_b_fromRSG==0 && nSt3_c_fromRSG==0 )
      {
+       FillUserTH1D("h1_DijetMass_qqbarlight", getVariableValue("DijetMass"), eventWeight );
+      
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_qqbarlight_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
@@ -638,6 +648,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
      if( nSt3_q_fromRSG==0 )
      {
+       FillUserTH1D("h1_DijetMass_gg", getVariableValue("DijetMass"), eventWeight );
+       
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_gg_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
