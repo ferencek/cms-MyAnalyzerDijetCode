@@ -224,6 +224,30 @@ MyAnalyzer::beginJob()
    CreateUserTH1D("h1_DijetMass_gg_0tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_gg_1tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
    CreateUserTH1D("h1_DijetMass_gg_2tag;Dijet Mass [GeV]", getHistoNBins("DijetMass"), getHistoMin("DijetMass"), getHistoMax("DijetMass"));
+
+   CreateUserTH1D("x_dist_500_bbbar",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_700_bbbar",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_1200_bbbar", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_2000_bbbar", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_3500_bbbar", 50, 0.3, 1.3);
+
+   CreateUserTH1D("x_dist_500_ccbar",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_700_ccbar",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_1200_ccbar", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_2000_ccbar", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_3500_ccbar", 50, 0.3, 1.3);
+
+   CreateUserTH1D("x_dist_500_qqbarlight",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_700_qqbarlight",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_1200_qqbarlight", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_2000_qqbarlight", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_3500_qqbarlight", 50, 0.3, 1.3);
+
+   CreateUserTH1D("x_dist_500_gg",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_700_gg",  50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_1200_gg", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_2000_gg", 50, 0.3, 1.3);
+   CreateUserTH1D("x_dist_3500_gg", 50, 0.3, 1.3);
    
    // initialize your variables here
 
@@ -583,11 +607,6 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      fillVariableWithValue( "DijetMass_qqbar", getVariableValue("DijetMass"), eventWeight );
      fillVariableWithValue( "DijetMass_bbbar", getVariableValue("DijetMass"), eventWeight );
-     fillVariableWithValue( "x_dist_500", (getVariableValue("DijetMass")/500.), eventWeight );
-     fillVariableWithValue( "x_dist_700", (getVariableValue("DijetMass")/700.), eventWeight );
-     fillVariableWithValue( "x_dist_1200", (getVariableValue("DijetMass")/1200.), eventWeight );
-     fillVariableWithValue( "x_dist_2000", (getVariableValue("DijetMass")/2000.), eventWeight );
-     fillVariableWithValue( "x_dist_3500", (getVariableValue("DijetMass")/3500.), eventWeight );
    }
    
    // Evaluate cuts (but do not apply them)
@@ -598,6 +617,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( nSt3_b_fromRSG==2 )
      {
        FillUserTH1D("h1_DijetMass_bbbar", getVariableValue("DijetMass"), eventWeight );
+       FillUserTH1D("x_dist_500_bbbar", (getVariableValue("DijetMass")/500.), eventWeight );
+       FillUserTH1D("x_dist_700_bbbar", (getVariableValue("DijetMass")/700.), eventWeight );
+       FillUserTH1D("x_dist_1200_bbbar", (getVariableValue("DijetMass")/1200.), eventWeight );
+       FillUserTH1D("x_dist_2000_bbbar", (getVariableValue("DijetMass")/2000.), eventWeight );
+       FillUserTH1D("x_dist_3500_bbbar", (getVariableValue("DijetMass")/3500.), eventWeight );
       
        if( doSFReweighting )
        {
@@ -615,7 +639,12 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( nSt3_c_fromRSG==2 )
      {
        FillUserTH1D("h1_DijetMass_ccbar", getVariableValue("DijetMass"), eventWeight );
-      
+       FillUserTH1D("x_dist_500_ccbar", (getVariableValue("DijetMass")/500.), eventWeight );
+       FillUserTH1D("x_dist_700_ccbar", (getVariableValue("DijetMass")/700.), eventWeight );
+       FillUserTH1D("x_dist_1200_ccbar", (getVariableValue("DijetMass")/1200.), eventWeight );
+       FillUserTH1D("x_dist_2000_ccbar", (getVariableValue("DijetMass")/2000.), eventWeight );
+       FillUserTH1D("x_dist_3500_ccbar", (getVariableValue("DijetMass")/3500.), eventWeight );
+       
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_ccbar_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
@@ -632,7 +661,12 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( nSt3_q_fromRSG==2 && nSt3_b_fromRSG==0 && nSt3_c_fromRSG==0 )
      {
        FillUserTH1D("h1_DijetMass_qqbarlight", getVariableValue("DijetMass"), eventWeight );
-      
+       FillUserTH1D("x_dist_500_qqbarlight", (getVariableValue("DijetMass")/500.), eventWeight );
+       FillUserTH1D("x_dist_700_qqbarlight", (getVariableValue("DijetMass")/700.), eventWeight );
+       FillUserTH1D("x_dist_1200_qqbarlight", (getVariableValue("DijetMass")/1200.), eventWeight );
+       FillUserTH1D("x_dist_2000_qqbarlight", (getVariableValue("DijetMass")/2000.), eventWeight );
+       FillUserTH1D("x_dist_3500_qqbarlight", (getVariableValue("DijetMass")/3500.), eventWeight );
+       
        if( doSFReweighting )
        {
          FillUserTH1D("h1_DijetMass_qqbarlight_0tag", getVariableValue("DijetMass"), eventWeight*bTagEventWeight(scaleFactors,0) );
@@ -649,6 +683,11 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( nSt3_q_fromRSG==0 )
      {
        FillUserTH1D("h1_DijetMass_gg", getVariableValue("DijetMass"), eventWeight );
+       FillUserTH1D("x_dist_500_gg", (getVariableValue("DijetMass")/500.), eventWeight );
+       FillUserTH1D("x_dist_700_gg", (getVariableValue("DijetMass")/700.), eventWeight );
+       FillUserTH1D("x_dist_1200_gg", (getVariableValue("DijetMass")/1200.), eventWeight );
+       FillUserTH1D("x_dist_2000_gg", (getVariableValue("DijetMass")/2000.), eventWeight );
+       FillUserTH1D("x_dist_3500_gg", (getVariableValue("DijetMass")/3500.), eventWeight );
        
        if( doSFReweighting )
        {
