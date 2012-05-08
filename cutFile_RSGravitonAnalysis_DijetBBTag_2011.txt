@@ -82,6 +82,7 @@ subleadingEtaCut                2.5             -               -               
 #
 #VariableName         minValue1(<)  maxValue1(>=)        minValue2(<)  maxValue2(>=)   level   histoNbinsMinMax
 #------------         ------------  -------------        ------------  -------------   -----   ----------------
+gg_InitialState       -inf          +inf                 -             -               0       2   -0.5 1.5
 nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.10 2012/04/13 19:54:58 ferencek Exp $
+// $Id: MyAnalyzer_RSGravitonAnalysis_DijetBBTag_2011.cc,v 1.12 2012/04/22 22:13:27 ferencek Exp $
 //
 //
 
@@ -392,6 +392,9 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(useWideJets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PartonFlavor"), PFJetPartonFlavor);
    else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
 
+   edm::Handle<unsigned int> ProcessID;
+   iEvent.getByLabel(edm::InputTag("GenEventInfo:ProcessID"), ProcessID);
+
    // apply pile-up reweighting
    if( !iEvent.isRealData() && doPUReweighting )
    {
@@ -532,6 +535,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
 
+   fillVariableWithValue( "gg_InitialState", ( *ProcessID==392 ? 1 : 0 ), eventWeight );
+   
    fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG, eventWeight );
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG, eventWeight );
 
