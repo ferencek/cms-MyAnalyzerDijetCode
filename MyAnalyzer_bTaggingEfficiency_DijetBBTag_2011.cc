@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.5 2012/02/29 23:20:51 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.6 2012/03/13 01:13:52 ferencek Exp $
 //
 //
 
@@ -226,6 +226,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int matchingType = int(getPreCutValue1("matchingType"));
    double matchingRadius = getPreCutValue1("matchingRadius");
+   int useAK5Jets = int(getPreCutValue1("useAK5Jets"));
    
    // grab necessary objects from the event
    edm::Handle<vector<double> > GenParticlePt;
@@ -244,33 +245,50 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("GenParticles:MotherIndex"), GenParticleMotherIndex);
    
    edm::Handle<vector<double> > PFJetPt_;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt_);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Pt"), PFJetPt_);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Pt"), PFJetPt_);
    edm::Handle<vector<double> > PFJetPtRaw;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PtRaw"), PFJetPtRaw);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PtRaw"), PFJetPtRaw);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PtRaw"), PFJetPtRaw);
    edm::Handle<vector<double> > PFJetEta;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Eta"), PFJetEta);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Eta"), PFJetEta);
    edm::Handle<vector<double> > PFJetPhi;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Phi"), PFJetPhi);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Phi"), PFJetPhi);
    edm::Handle<vector<double> > PFJetE_;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE_);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:Energy"), PFJetE_);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:Energy"), PFJetE_);
    edm::Handle<vector<double> > PFJetUnc;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:JECUnc"), PFJetUnc);
-   edm::Handle<vector<int> > PFJetPassJetID;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassJetID);
-   edm::Handle<vector<double> > PFJetTCHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
-   edm::Handle<vector<double> > PFJetTCHP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:JECUnc"), PFJetUnc);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:JECUnc"), PFJetUnc);
+   edm::Handle<vector<int> > PFJetPassLooseID;
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PassLooseID"), PFJetPassLooseID);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PassLooseID"), PFJetPassLooseID);
+   edm::Handle<vector<int> > PFJetPassTightID;
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PassTightID"), PFJetPassTightID);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PassTightID"), PFJetPassTightID);
    edm::Handle<vector<double> > PFJetSSVHE;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighEffBTag"), PFJetSSVHE);
    edm::Handle<vector<double> > PFJetSSVHP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:SimpleSecondaryVertexHighPurBTag"), PFJetSSVHP);
+   edm::Handle<vector<double> > PFJetTCHE;
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighEffBTag"), PFJetTCHE);
+   edm::Handle<vector<double> > PFJetTCHP;
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:TrackCountingHighPurBTag"), PFJetTCHP);
    edm::Handle<vector<double> > PFJetJP;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:JetProbabilityBTag"), PFJetJP);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:JetProbabilityBTag"), PFJetJP);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:JetProbabilityBTag"), PFJetJP);
    edm::Handle<vector<double> > PFJetCSV;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:CombinedSecondaryVertexBJetTag"), PFJetCSV);
    edm::Handle<vector<int> > PFJetPartonFlavor;
-   iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
+   if(useAK5Jets) iEvent.getByLabel(edm::InputTag("AK5PFJets:PartonFlavor"), PFJetPartonFlavor);
+   else            iEvent.getByLabel(edm::InputTag("AK7PFJets:PartonFlavor"), PFJetPartonFlavor);
 
    edm::Handle<unsigned int> ProcessID;
    iEvent.getByLabel(edm::InputTag("GenEventInfo:ProcessID"), ProcessID);
@@ -297,7 +315,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    fillVariableWithValue( "gg_FinalState", gg_FinalState );
    
-   int nSt3_b = 0, nSt2_b = 0, nSt3_q_fromRSG = 0, nSt3_b_fromRSG = 0;
+   int nSt3_b = 0, nSt2_b = 0, nSt3_q_fromRSG = 0, nSt3_c_fromRSG = 0, nSt3_b_fromRSG = 0;
 
    for(size_t i=0; i<GenParticlePt->size(); i++)
    {
@@ -308,6 +326,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_b_fromRSG;
      }
+     if( abs(GenParticlePdgId->at(i))==4 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
+     {
+       if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_c_fromRSG;
+     }
      if( abs(GenParticlePdgId->at(i))!=21 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
      {
        if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_q_fromRSG;
@@ -317,18 +339,19 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    fillVariableWithValue( "nSt3_b", nSt3_b );
    fillVariableWithValue( "nSt2_b", nSt2_b );
    fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG );
+   fillVariableWithValue( "nSt3_c_fromRSG", nSt3_c_fromRSG );
    fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG );
 
    fillVariableWithValue( "nJets", PFJetPt->size() );
 
    if( PFJetPt->size() >= 1 )
    {
-     fillVariableWithValue( "passJetIdJ1", ( PFJetPassJetID->at(0) ? 1 : 0 ) );
+     fillVariableWithValue( "passJetIdJ1", ( PFJetPassTightID->at(0) ? 1 : 0 ) );
      fillVariableWithValue( "absEtaJ1", fabs( PFJetEta->at(0) ));
    }
    if( PFJetPt->size() >= 2 )
    {
-     fillVariableWithValue( "passJetIdJ2", ( PFJetPassJetID->at(1) ? 1 : 0 ) );
+     fillVariableWithValue( "passJetIdJ2", ( PFJetPassTightID->at(1) ? 1 : 0 ) );
      fillVariableWithValue( "absEtaJ2", fabs( PFJetEta->at(1) ) );
      
      TLorentzVector v_j1j2, v_j1, v_j2;
@@ -396,7 +419,7 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          }
        }
 
-       if( passedAllPreviousCuts("nJets_all") )
+       if( passedAllPreviousCuts("nJets") )
        {
          if( partonFlavor==5 )
          {

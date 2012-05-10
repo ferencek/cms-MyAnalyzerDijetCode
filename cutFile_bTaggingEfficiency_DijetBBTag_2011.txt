@@ -38,6 +38,8 @@ matchingType                    0               -               -               
 matchingRadius                  0.4             -               -               -               -1
 # Shift in jet energy scale (in units of the JES uncertainty)
 JES_Shift                       0               -               -               -               -1
+# use AK5 jets
+useAK5Jets                      0               -               -               -               -1
 #
 #
 #--------------------------------- Cuts (level 0,1,2,3 ... n) below --------------------------------------------
@@ -61,6 +63,7 @@ gg_FinalState         -inf          +inf                 -             -        
 nSt3_b                -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt2_b                -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt3_q_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
+nSt3_c_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt3_b_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
 nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
