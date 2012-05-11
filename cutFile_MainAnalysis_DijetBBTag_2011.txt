@@ -29,14 +29,12 @@ SSVHPT_SFb                      0.95            -               -               
 SSVHPT_SFl                      0.98            -               -               -               -1
 # turn on/off heavy flavor k-factor
 useHFkFactor                    1               -               -               -               -1
-# heavy flavor k-factor
-#HFkFactor                       1.454           -               -               -               -1
+# heavy flavor k-factor (CSVL)
+HFkFactor                       1.438           -               -               -               -1
+# heavy flavor k-factor (CSVM)
+#HFkFactor                       1.406           -               -               -               -1
 # heavy flavor fraction
-#HFFraction                      0.0566665       -               -               -               -1
-# heavy flavor k-factor (wide jets)
-HFkFactor                       1.411           -               -               -               -1
-# heavy flavor fraction (wide jets)
-HFFraction                      0.0592598       -               -               -               -1
+HFFraction                      0.0593534       -               -               -               -1
 # shift in scale factors (in units of the SF uncertainty) (0: no shift, >0; positive, <0: negative)
 SFb_Shift                       0               -               -               -               -1
 SFl_Shift                       0               -               -               -               -1
