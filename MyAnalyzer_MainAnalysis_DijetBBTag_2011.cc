@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.17 2012/03/30 21:00:33 ferencek Exp $
+// $Id: MyAnalyzer_MainAnalysis_DijetBBTag_2011.cc,v 1.18 2012/04/13 19:54:15 ferencek Exp $
 //
 //
 
@@ -453,6 +453,8 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(edm::InputTag("GenParticles:PdgId"), GenParticlePdgId);
    edm::Handle<vector<int> > GenParticleStatus;
    iEvent.getByLabel(edm::InputTag("GenParticles:Status"), GenParticleStatus);
+   edm::Handle<vector<int> > GenParticleMotherIndex;
+   iEvent.getByLabel(edm::InputTag("GenParticles:MotherIndex"), GenParticleMotherIndex);
    
    edm::Handle<bool> passHBHENoiseFilter;
    iEvent.getByLabel(edm::InputTag("EventSelection:PassHBHENoiseFilter"), passHBHENoiseFilter);
@@ -569,6 +571,25 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==2 ) nStatus2_bQuarks++;
    }
 
+   // for RS graviton samples
+   int nSt3_b_fromRSG = 0, nSt3_c_fromRSG = 0, nSt3_q_fromRSG = 0;
+
+   for(size_t i=0; i<GenParticlePt->size(); i++)
+   {
+     if( abs(GenParticlePdgId->at(i))==5 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
+     {
+       if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_b_fromRSG;
+     }
+     if( abs(GenParticlePdgId->at(i))==4 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
+     {
+       if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_c_fromRSG;
+     }
+     if( abs(GenParticlePdgId->at(i))!=21 && GenParticleStatus->at(i)==3 && GenParticleMotherIndex->at(i)>=0 )
+     {
+       if( abs(GenParticlePdgId->at(GenParticleMotherIndex->at(i)))==5000039 ) ++nSt3_q_fromRSG;
+     }
+   }
+   
    auto_ptr<std::vector<double> >  PFJetPt ( new std::vector<double>() );
    auto_ptr<std::vector<double> >  PFJetE  ( new std::vector<double>() );
 
@@ -722,6 +743,10 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // Set the evaluation of the cuts to false and clear the variable values and filled status
    resetCuts();
+
+   fillVariableWithValue( "nSt3_q_fromRSG", nSt3_q_fromRSG, pretagWeight );
+   fillVariableWithValue( "nSt3_c_fromRSG", nSt3_c_fromRSG, pretagWeight );
+   fillVariableWithValue( "nSt3_b_fromRSG", nSt3_b_fromRSG, pretagWeight );
    
    fillVariableWithValue( "PassHBHENoiseFilter", ( *passHBHENoiseFilter ? 1 : 0 ), pretagWeight );
    fillVariableWithValue( "PassBeamHaloFltTight", ( *passBeamHaloFilterTight ? 1 : 0 ), pretagWeight );
