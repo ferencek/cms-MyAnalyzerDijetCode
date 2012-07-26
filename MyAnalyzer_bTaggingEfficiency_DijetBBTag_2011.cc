@@ -13,7 +13,7 @@
 //
 // Original Author:  Dinko Ferencek
 //         Created:  Mon Sep 12 15:06:41 CDT 2011
-// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.6 2012/03/13 01:13:52 ferencek Exp $
+// $Id: MyAnalyzer_bTaggingEfficiency_DijetBBTag_2011.cc,v 1.7 2012/05/10 05:34:41 ferencek Exp $
 //
 //
 
@@ -165,36 +165,64 @@ MyAnalyzer::beginJob()
    CreateUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
    CreateUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
 
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_All;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_All;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHEL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_SSVHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_SSVHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
 
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_All;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEL;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
-   
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_All;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHEL;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHPM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_SSVHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_SSVHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_All;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHEL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_SSVHEM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_SSVHPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_All;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHEL;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHPM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_SSVHEM;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_SSVHPT;p_{T,2} [GeV];#eta_{2}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVL;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVM;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+   CreateUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVT;p_{T,1} [GeV];#eta_{1}", 600, 0, 6000, 100, -5, 5);
+
    // initialize your variables here
-   
+
    //############################# User's code ends here #################################
    //#####################################################################################
 }
@@ -491,39 +519,74 @@ MyAnalyzer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
              if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_C_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
          }
+         else if( partonFlavor==21 )
+         {
+           if(i==0)
+           {
+             FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_G_CSVT", PFJetPt->at(i), PFJetEta->at(i));
+           }
+           if(i==1)
+           {
+             FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_G_CSVT", PFJetPt->at(i), PFJetEta->at(i));
+           }
+         }
          else
          {
            if(i==0)
            {
-             FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_All", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_JPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDSG_CSVT", PFJetPt->at(i), PFJetEta->at(i));
+             FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ1_vs_PtJ1_UDS_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
            if(i==1)
            {
-             FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_All", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_JPT", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVL", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVM", PFJetPt->at(i), PFJetEta->at(i));
-             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDSG_CSVT", PFJetPt->at(i), PFJetEta->at(i));
+             FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_All", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEL_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHEL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHE->at(i)>getPreCutValue1("TCHEM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPM_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetTCHP->at(i)>getPreCutValue1("TCHPT_WP") )   FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_TCHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHE->at(i)>getPreCutValue1("SSVHEM_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_SSVHEM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetSSVHP->at(i)>getPreCutValue1("SSVHPT_WP") ) FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_SSVHPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPL_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPM_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("JPT_WP") )       FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_JPT", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVL_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVL", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVM_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVM", PFJetPt->at(i), PFJetEta->at(i));
+             if( PFJetJP->at(i)>getPreCutValue1("CSVT_WP") )      FillUserTH2D("h2_EtaJ2_vs_PtJ2_UDS_CSVT", PFJetPt->at(i), PFJetEta->at(i));
            }
          }
        }

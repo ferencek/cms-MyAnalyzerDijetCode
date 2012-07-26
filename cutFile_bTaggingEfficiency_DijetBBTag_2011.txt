@@ -62,9 +62,9 @@ useAK5Jets                      0               -               -               
 gg_FinalState         -inf          +inf                 -             -               0       2   -0.5 1.5
 nSt3_b                -inf          +inf                 -             -               0       16  -0.5 15.5
 nSt2_b                -inf          +inf                 -             -               0       16  -0.5 15.5
-nSt3_q_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
-nSt3_c_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
-nSt3_b_fromRSG        -inf          +inf                 -             -               0       16  -0.5 15.5
+nSt3_q_fromRSG        1             2                    -             -               0       16  -0.5 15.5
+nSt3_c_fromRSG        -1            0                    -             -               0       16  -0.5 15.5
+nSt3_b_fromRSG        -1            0                    -             -               0       16  -0.5 15.5
 nJets                 1             +inf                 -             -               1       16  -0.5 15.5
 absEtaJ1              -inf          2.5                  -             -               2       50   0   5
 absEtaJ2              -inf          2.5                  -             -               2       50   0   5
